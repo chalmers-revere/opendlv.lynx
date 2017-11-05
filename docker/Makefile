@@ -30,7 +30,7 @@ BASE_IMAGE_DEV_VERSION=$(BASE_IMAGE_VERSION)
 ###############################################################################
 # Product names.
 PROJECT_NAME=opendlv.mantis
-PRODUCT=opendlv.mantis-on-
+PRODUCT=opendlv-mantis-on-
 DEST_DIR=opendlv.mantis
 
 ###############################################################################
