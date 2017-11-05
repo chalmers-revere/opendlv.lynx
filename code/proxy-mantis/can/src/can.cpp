@@ -43,25 +43,25 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body()
   while (getModuleStateAndWaitForRemainingTimeInTimeslice() ==
       odcore::data::dmcp::ModuleStateMessage::RUNNING) {
 
-    opendlv::proxy::GroundSpeedReading o1();
-    Container c1(o1);
-    m_conference.send(c1);
+    opendlv::proxy::GroundSpeedReading o1;
+    odcore::data::Container c1(o1);
+    getConference().send(c1);
 
-    opendlv::proxy::GlobalPositionWgs84Reading o2();
-    Container c2(o2);
-    m_conference.send(c2);
+    opendlv::proxy::GeodeticWgs84Reading o2;
+    odcore::data::Container c2(o2);
+    getConference().send(c2);
 
-    opendlv::proxy::GyroscopeReading o3();
-    Container c3(o3);
-    m_conference.send(c3);
+    opendlv::proxy::GyroscopeReading o3;
+    odcore::data::Container c3(o3);
+    getConference().send(c3);
 
-    opendlv::proxy::AccelerometerReading o4();
-    Container c4(o4);
-    m_conference.send(c4);
+    opendlv::proxy::AccelerometerReading o4;
+    odcore::data::Container c4(o4);
+    getConference().send(c4);
 
-    opendlv::proxy::MagnetometerReading o5();
-    Container c5(o5);
-    m_conference.send(c5);
+    opendlv::proxy::MagnetometerReading o5;
+    odcore::data::Container c5(o5);
+    getConference().send(c5);
   }
   return odcore::data::dmcp::ModuleExitCodeMessage::OKAY;
 }
