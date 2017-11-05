@@ -41,7 +41,6 @@ EOF
 
 chmod 755 /opt/opendlv.mantis.build/build.sh
 chown $UID_AS:$UID_AS /opt/opendlv.mantis.build/build.sh
-chown -R $UID_AS:$UID_AS /opt
 
 su -m `getent passwd $UID_AS|cut -f1 -d":"` -c /opt/opendlv.mantis.build/build.sh
 
