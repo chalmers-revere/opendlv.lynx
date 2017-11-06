@@ -1,4 +1,4 @@
-# Makefile - Makefile to build opendlv.mantis using Docker-encapsulated builders.
+# Makefile - Makefile to build opendlv.lynx using Docker-encapsulated builders.
 # Copyright (C) 2016 Christian Berger
 #
 # This program is free software; you can redistribute it and/or
@@ -29,9 +29,9 @@ BASE_IMAGE_DEV_VERSION=$(BASE_IMAGE_VERSION)
 
 ###############################################################################
 # Product names.
-PROJECT_NAME=opendlv.mantis
-PRODUCT=opendlv-mantis-on-
-DEST_DIR=opendlv.mantis
+PROJECT_NAME=opendlv.lynx
+PRODUCT=opendlv-lynx-on-
+DEST_DIR=opendlv.lynx
 
 ###############################################################################
 # Shall deb or rpm packages be created?

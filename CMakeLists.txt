@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 2.8)
 
-project(opendlv.mantis)
+project(opendlv.lynx)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake.Modules" ${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH "${OPENDAVINCI_DIR}/share/cmake-${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}/Modules" ${CMAKE_MODULE_PATH})
@@ -68,16 +68,16 @@ ExternalProject_Add (libodvdcfsd18
 ### ODVD END ###
 
 ### NAMESPACE BEGIN ###
-ExternalProject_Add (proxy-mantis
+ExternalProject_Add (proxy-lynx
   DEPENDS libodvdcfsd18
   DOWNLOAD_COMMAND ""
   UPDATE_COMMAND ""
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/code/proxy-mantis"
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/code/proxy-lynx"
   CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
   CMAKE_ARGS "-DOPENDAVINCI_DIR=${OPENDAVINCI_DIR}"
   CMAKE_ARGS "-DODVDOPENDLVSTANDARDMESSAGESET_DIR=${ODVDOPENDLVSTANDARDMESSAGESET_DIR}"
   CMAKE_ARGS "-DCXXTEST_INCLUDE_DIR=${CXXTEST_INCLUDE_DIR}"
   CMAKE_ARGS "-DEIGEN3_INCLUDE_DIR=${OPENDAVINCI_DIR}/include/opendavinci"
   TEST_BEFORE_INSTALL 1
-  INSTALL_COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/proxy-mantis-prefix/src/proxy-mantis-build --target install COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/proxy-mantis-prefix/src/proxy-mantis-build --target ${MAKE_PACKAGE})
+  INSTALL_COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/proxy-lynx-prefix/src/proxy-lynx-build --target install COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/proxy-lynx-prefix/src/proxy-lynx-build --target ${MAKE_PACKAGE})
 ### NAMESPACE END ###

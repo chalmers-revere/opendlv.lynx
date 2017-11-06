@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# incrementalBuild.sh - Script to build opendlv.mantis
+# incrementalBuild.sh - Script to build opendlv.lynx
 # Copyright (C) 2016 Christian Berger
 #
 # This program is free software; you can redistribute it and/or
@@ -24,17 +24,17 @@ UID_AS=$2
 groupadd $BUILD_AS
 useradd $BUILD_AS -g $BUILD_AS
 
-cat <<EOF > /opt/opendlv.mantis.build/build.sh
+cat <<EOF > /opt/opendlv.lynx.build/build.sh
 #!/bin/bash
-cd /opt/opendlv.mantis.build
+cd /opt/opendlv.lynx.build
 
 ### NAMESPACE BEGIN ###
 ### NAMESPACE END ###
 
 EOF
 
-chmod 755 /opt/opendlv.mantis.build/build.sh
-chown $UID_AS:$UID_AS /opt/opendlv.mantis.build/build.sh
+chmod 755 /opt/opendlv.lynx.build/build.sh
+chown $UID_AS:$UID_AS /opt/opendlv.lynx.build/build.sh
 
-su -m `getent passwd $UID_AS|cut -f1 -d":"` -c /opt/opendlv.mantis.build/build.sh
+su -m `getent passwd $UID_AS|cut -f1 -d":"` -c /opt/opendlv.lynx.build/build.sh
 

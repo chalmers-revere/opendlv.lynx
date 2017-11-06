@@ -21,9 +21,9 @@ MAINTAINER Chalmers Revere "revere@chalmers.se"
 
 ADD opt /opt
 
-RUN chown -R 1000:1000 /opt/opendlv.mantis
+RUN chown -R 1000:1000 /opt/opendlv.lynx
 
 ENV QT_X11_NO_MITSHM=1
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/opendlv.mantis/lib
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/opendlv.lynx/lib
 
-WORKDIR /opt/opendlv.mantis/bin
+WORKDIR /opt/opendlv.lynx/bin
