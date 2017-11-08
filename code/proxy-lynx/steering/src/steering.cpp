@@ -18,6 +18,7 @@
 */
 
 #include <iostream>
+#include <vector>
 
 #include <opendavinci/odcore/data/TimeStamp.h>
 #include <opendavinci/odcore/strings/StringToolbox.h>
@@ -31,35 +32,68 @@ namespace lynx {
 
 Steering::Steering(int32_t const &a_argc, char **a_argv) :
   DataTriggeredConferenceClientModule(a_argc, a_argv, "proxy-lynx-steering")
+  , m_classVar()
 {
+  std::cout << "[" << getName() << "] I got created!" << std::endl;
+  m_classVar = 1;
 }
 
 Steering::~Steering()
 {
+  std::cout << "[" << getName() << "] I got destroyed..." << std::endl;
 }
 
 
 
 void Steering::nextContainer(odcore::data::Container &a_container)
 {
+  std::cout << "[" << getName() << "] I got a container... hmm.." << std::endl;
   if (a_container.getDataType() == opendlv::proxy::GroundSteeringRequest::ID()) {
-    // auto kinematicState = a_container.getData<opendlv::coord::KinematicState>();
+    auto kinematicState = a_container.getData<opendlv::coord::KinematicState>();
+    std::cout << "[" << getName() << "] I got a steering request!" << std::endl
+        << kinematicState.toString();
   }
 }
 
 void Steering::setUp()
 {
-  // std::string const exampleConfig = 
-  //   getKeyValueConfiguration().getValue<std::string>(
-  //     "proxy-lynx-steering.example-config");
+  std::cout << "[" << getName() << "] I'll set up myself." << std::endl;
+  auto kv = getKeyValueConfiguration();
+  std::string const exampleConfig = kv.getValue<std::string>(
+      "proxy-lynx-steering.example-config");
+  // proxy-lynx-steering.double = 0.0001
+  double const exampleDouble = kv.getValue<double>("proxy-lynx-steering.double");
+  // proxy-lynx-steering.int = 3
+  int32_t const exampleInt = kv.getValue<int32_t>("proxy-lynx-steering.int");
+  // proxy-lynx-steering.boolean = 1
+  bool const exampleBool = (kv.getValue<int32_t>("proxy-lynx-steering.boolean") == 1);
+  // proxy-lynx-steering.string-seperator = 10,11,22,33
+  std::string const exampleSeperator = kv.getValue<std::string>(
+      "proxy-lynx-steering.string-seperator");
+  std::vector<int32_t> valVector;
+  std::vector<std::string> exampleSepSplitted = 
+      odcore::strings::StringToolbox::split(exampleSeperator, ','); 
+  for (auto str : exampleSepSplitted) {
+    valVector.push_back(std::stod(str));
+  }
 
-  // if (isVerbose()) {
-  //   std::cout << "Example config is " << exampleConfig << std::endl;
-  // }
+  (void) exampleDouble;
+  (void) exampleInt;
+  (void) exampleBool;
+
+  if (isVerbose()) {
+    std::cout << "Example config is " << exampleConfig << std::endl;
+  }
 }
 
 void Steering::tearDown()
 {
+  std::cout << "[" << getName() << "] I'll wrap things up before i get destroyed." << std::endl;  
+}
+
+void Steering::myFunction(int32_t a_argument)
+{
+  std::cout << "Argument" << a_argument << std::endl;
 }
 
 }

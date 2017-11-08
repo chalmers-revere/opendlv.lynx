@@ -40,6 +40,10 @@ class Steering : public odcore::base::module::DataTriggeredConferenceClientModul
  private:
   void setUp();
   void tearDown();
+
+  void myFunction(int32_t);
+
+  int32_t m_classVar;
 };
 
 }

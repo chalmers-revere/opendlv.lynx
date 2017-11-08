@@ -1,0 +1,9 @@
+global.buffer.memorySegmentSize = 2800000 # Size of a memory segment in bytes.
+global.buffer.numberOfMemorySegments = 4  # Number of memory segments.
+global.session.expectedModules = proxy-lynx-steering #optional
+
+proxy-lynx-steering.example-config = coolest configuration ever!
+proxy-lynx-steering.double = 0.0001
+proxy-lynx-steering.int = 3
+proxy-lynx-steering.boolean = 1
+proxy-lynx-steering.string-seperator = 10,11,22,33
