@@ -88,10 +88,10 @@ void Steering::nextContainer(odcore::data::Container &a_container)
     std::cout << "[" << getName() << "] I got a container... hmm.." << std::endl;
   }
   if (a_container.getDataType() == opendlv::proxy::GroundSteeringRequest::ID()) {
-    auto kinematicState = a_container.getData<opendlv::coord::KinematicState>();
+    auto groundSteeringRequest = a_container.getData<opendlv::proxy::GroundSteeringRequest>();
     if (isVerbose()) {
       std::cout << "[" << getName() << "] I got a steering request! " 
-          << std::endl << kinematicState.toString();
+          << std::endl << groundSteeringRequest.toString() << std::endl;
       
     } 
   }

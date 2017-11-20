@@ -28,11 +28,11 @@ services:
 
        
     # microservice for lynx-steering
-    lynx-steering-1:
+    lynx-steering:
         image: ${IMAGE}
         network_mode: "host"
         depends_on:
             - odsupercomponent
-        command: "/opt/opendlv.lynx/bin/opendlv-proxy-lynx-steering --cid=${CID} --verbose=1 --id=1"
+        command: "/opt/opendlv.lynx/bin/opendlv-proxy-lynx-steering --cid=${CID} --verbose=1 --freq=5 --id=1"
 
 
