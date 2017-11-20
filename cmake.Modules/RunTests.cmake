@@ -1,4 +1,4 @@
-# Copyright (C) {{ year }} Chalmers Revere
+# Copyright (C) 2017 Chalmers Revere
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
