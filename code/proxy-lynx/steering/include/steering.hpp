@@ -20,7 +20,7 @@
 #ifndef OPENDLV_PROXY_LYNX_STEERING_HPP
 #define OPENDLV_PROXY_LYNX_STEERING_HPP
 
-#include <opendavinci/odcore/base/module/DataTriggeredConferenceClientModule.h>
+#include <opendavinci/odcore/base/module/TimeTriggeredConferenceClientModule.h>
 #include <opendavinci/odcore/data/Container.h>
 
 #include <odvdcfsd18/GeneratedHeaders_ODVDcfsd18.h>
@@ -29,7 +29,7 @@ namespace opendlv {
 namespace proxy {
 namespace lynx {
 
-class Steering : public odcore::base::module::DataTriggeredConferenceClientModule {
+class Steering : public odcore::base::module::TimeTriggeredConferenceClientModule {
  public:
   Steering(int32_t const &, char **);
   Steering(Steering const &) = delete;
@@ -40,8 +40,9 @@ class Steering : public odcore::base::module::DataTriggeredConferenceClientModul
  private:
   void setUp();
   void tearDown();
+  odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode body();
 
-  void myFunction(int32_t);
+  void sendGroundSteeringReading(double);
 
   int32_t m_classVar;
 };

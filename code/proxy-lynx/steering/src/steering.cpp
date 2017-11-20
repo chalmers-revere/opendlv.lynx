@@ -31,7 +31,7 @@ namespace proxy {
 namespace lynx {
 
 Steering::Steering(int32_t const &a_argc, char **a_argv) :
-  DataTriggeredConferenceClientModule(a_argc, a_argv, "proxy-lynx-steering")
+  TimeTriggeredConferenceClientModule(a_argc, a_argv, "proxy-lynx-steering")
   , m_classVar()
 {
   std::cout << "[" << getName() << "] I got created!" << std::endl;
@@ -45,15 +45,6 @@ Steering::~Steering()
 
 
 
-void Steering::nextContainer(odcore::data::Container &a_container)
-{
-  std::cout << "[" << getName() << "] I got a container... hmm.." << std::endl;
-  if (a_container.getDataType() == opendlv::proxy::GroundSteeringRequest::ID()) {
-    auto kinematicState = a_container.getData<opendlv::coord::KinematicState>();
-    std::cout << "[" << getName() << "] I got a steering request!" << std::endl
-        << kinematicState.toString();
-  }
-}
 
 void Steering::setUp()
 {
@@ -88,12 +79,51 @@ void Steering::setUp()
 
 void Steering::tearDown()
 {
-  std::cout << "[" << getName() << "] I'll wrap things up before i get destroyed." << std::endl;  
+  std::cout << "[" << getName() << "] I'll wrap things up before I get destroyed." << std::endl;  
 }
 
-void Steering::myFunction(int32_t a_argument)
+void Steering::nextContainer(odcore::data::Container &a_container)
 {
-  std::cout << "Argument" << a_argument << std::endl;
+  if (isVerbose()) {
+    std::cout << "[" << getName() << "] I got a container... hmm.." << std::endl;
+  }
+  if (a_container.getDataType() == opendlv::proxy::GroundSteeringRequest::ID()) {
+    auto kinematicState = a_container.getData<opendlv::coord::KinematicState>();
+    if (isVerbose()) {
+      std::cout << "[" << getName() << "] I got a steering request! " 
+          << std::endl << kinematicState.toString();
+      
+    } 
+  }
+}
+
+odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Steering::body()
+{
+  // Todo: actual steering reading
+  double steeringReading = 0;
+  double increment = 0.01;
+  while (getModuleStateAndWaitForRemainingTimeInTimeslice() ==
+      odcore::data::dmcp::ModuleStateMessage::RUNNING) {
+    if (steeringReading < -1.0 || steeringReading > 1.0) {
+      increment = -increment;
+    }
+    steeringReading += increment;
+    sendGroundSteeringReading(steeringReading);
+  }
+  return odcore::data::dmcp::ModuleExitCodeMessage::OKAY;
+}
+
+void Steering::sendGroundSteeringReading(double a_groundsteering)
+{
+  //Send groundsteering
+  // std::cout << "Argument" << a_argument << std::endl;
+
+  opendlv::proxy::GroundSteeringReading gsr(a_groundsteering);
+  odcore::data::Container c(gsr);
+  getConference().send(c);
+  if (isVerbose()) {
+    std::cout << "[" << getName() << "] Sending: " << gsr.toString() << std::endl;
+  }
 }
 
 }
