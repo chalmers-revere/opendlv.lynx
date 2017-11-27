@@ -21,6 +21,7 @@
 #define OPENDLV_PROXY_LYNX_STEERING_HPP
 
 #include <opendavinci/odcore/base/module/TimeTriggeredConferenceClientModule.h>
+#include <opendavinci/odcore/base/Mutex.h>
 #include <opendavinci/odcore/data/Container.h>
 
 #include <odvdcfsd18/GeneratedHeaders_ODVDcfsd18.h>
@@ -37,6 +38,9 @@ class Steering : public odcore::base::module::TimeTriggeredConferenceClientModul
   virtual ~Steering();
   virtual void nextContainer(odcore::data::Container &);
 
+  double getClassVar();
+  void setClassVar(double );
+
  private:
   void setUp();
   void tearDown();
@@ -44,7 +48,8 @@ class Steering : public odcore::base::module::TimeTriggeredConferenceClientModul
 
   void sendGroundSteeringReading(double);
 
-  int32_t m_classVar;
+  double m_classVar;
+  odcore::base::Mutex m_mutex;
 };
 
 }

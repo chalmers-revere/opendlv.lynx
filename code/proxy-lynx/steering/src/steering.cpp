@@ -23,6 +23,7 @@
 #include <opendavinci/odcore/data/TimeStamp.h>
 #include <opendavinci/odcore/strings/StringToolbox.h>
 #include <opendavinci/odcore/wrapper/Eigen.h>
+#include <opendavinci/odcore/base/Lock.h>
 
 #include "steering.hpp"
 
@@ -30,12 +31,15 @@ namespace opendlv {
 namespace proxy {
 namespace lynx {
 
+
+
 Steering::Steering(int32_t const &a_argc, char **a_argv) :
   TimeTriggeredConferenceClientModule(a_argc, a_argv, "proxy-lynx-steering")
   , m_classVar()
+  , m_mutex()
 {
   std::cout << "[" << getName() << "] I got created!" << std::endl;
-  m_classVar = 1;
+  m_classVar = 1.0;
 }
 
 Steering::~Steering()
@@ -44,7 +48,17 @@ Steering::~Steering()
 }
 
 
+double Steering::getClassVar()
+{
+  odcore::base::Lock l(m_mutex);
+  return m_classVar;
+}
 
+void Steering::setClassVar(double a_val)
+{
+  odcore::base::Lock l(m_mutex); 
+  m_classVar = a_val;
+}
 
 void Steering::setUp()
 {
@@ -93,21 +107,24 @@ void Steering::nextContainer(odcore::data::Container &a_container)
       std::cout << "[" << getName() << "] I got a steering request! " 
           << std::endl << groundSteeringRequest.toString() << std::endl;
       
-    } 
+    }
+    // m_classVar = groundSteeringRequest.getGroundSteering();
+    setClassVar(groundSteeringRequest.getGroundSteering());
   }
 }
 
 odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Steering::body()
 {
   // Todo: actual steering reading
-  double steeringReading = 0;
-  double increment = 0.01;
+  // double steeringReading = 0;
+  // double increment = 0.01;
   while (getModuleStateAndWaitForRemainingTimeInTimeslice() ==
       odcore::data::dmcp::ModuleStateMessage::RUNNING) {
-    if (steeringReading < -1.0 || steeringReading > 1.0) {
-      increment = -increment;
-    }
-    steeringReading += increment;
+    double steeringReading = getClassVar();
+    // if (steeringReading < -1.0 || steeringReading > 1.0) {
+    //   increment = -increment;
+    // }
+    // steeringReading += increment;
     sendGroundSteeringReading(steeringReading);
   }
   return odcore::data::dmcp::ModuleExitCodeMessage::OKAY;
