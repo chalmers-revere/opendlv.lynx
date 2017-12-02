@@ -193,30 +193,30 @@ message opendlv.logic.perception.Object [id = 1121] {
 }
 
 message opendlv.logic.perception.ObjectType [id = 1122] {
-  uint32 type [id = 1];
-  uint32 objectId [id = 2];
+  uint32 objectId [id = 1];
+  uint32 type [id = 2];
 }
 
 message opendlv.logic.perception.ObjectProperty [id = 1123] {
-  string property [id = 1];
-  uint32 objectId [id = 2];
+  uint32 objectId [id = 1];
+  string property [id = 2];
 }
 
 message opendlv.logic.perception.ObjectDirection [id = 1124] {
-  double azimuthAngle [id = 1];
-  double zenithAngle [id = 2];
-  uint32 objectId [id = 3];
+  uint32 objectId [id = 1];
+  double azimuthAngle [id = 2];
+  double zenithAngle [id = 3];
 }
 
 message opendlv.logic.perception.ObjectDistance [id = 1125] {
-  double distance [id = 1];
-  uint32 objectId [id = 2];
+  uint32 objectId [id = 1];
+  double distance [id = 2];
 }
 
 message opendlv.logic.perception.ObjectAngularBlob [id = 1126] {
-  double width [id = 1];
-  double height [id = 2];
-  uint32 objectId [id = 3];
+  uint32 objectId [id = 1];
+  double width [id = 2];
+  double height [id = 3];
 }
 
 message opendlv.logic.perception.Surface [id = 1131] {
@@ -224,23 +224,23 @@ message opendlv.logic.perception.Surface [id = 1131] {
 }
 
 message opendlv.logic.perception.SurfaceType [id = 1132] {
-  uint32 type [id = 1];
-  uint32 surfaceId [id = 2];
+  uint32 surfaceId [id = 1];
+  uint32 type [id = 2];
 }
 
 message opendlv.logic.perception.SurfaceProperty [id = 1133] {
-  string property [id = 1];
-  uint32 surfaceId [id = 2];
+  uint32 surfaceId [id = 1];
+  string property [id = 2];
 }
 
-message opendlv.logic.perception.SurfacePolygon [id = 1134] {
-  list<opendlv.coord.Position> polygon [id = 1];
-  uint32 surfaceId [id = 2];
+message opendlv.logic.perception.SurfaceTraversableConnection [id = 1134] {
+  uint32 surfaceId [id = 1];
+  uint32 traversableTo [id = 2];
 }
 
-message opendlv.logic.perception.SurfaceTraversableConnection [id = 1135] {
-  uint32 traversableTo [id = 1];
-  uint32 surfaceId [id = 2];
+message opendlv.logic.perception.SurfacePolygon [id = 1135] {
+  uint32 surfaceId [id = 1];
+  list<opendlv.coord.Position> polygon [id = 2];
 }
 
 message opendlv.logic.action.AimDirection [id = 1161] {
