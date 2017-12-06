@@ -74,16 +74,13 @@ void Vehicle::tearDown()
 
 odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Vehicle::body()
 {
-  odcore::data::TimeStamp lastUpdate;
+  float const deltaTime = 1.0f / getFrequency();
+
   while (getModuleStateAndWaitForRemainingTimeInTimeslice() == 
       odcore::data::dmcp::ModuleStateMessage::RUNNING) {
 
     odcore::base::Lock l(m_requestMutex);
     
-    odcore::data::TimeStamp now;
-    float deltaTime = static_cast<float>((now.getMicroseconds() - lastUpdate.getMicroseconds()) / 1000000.0);
-    lastUpdate = now;
-
     std::cout << "Delta time: " << deltaTime << std::endl; // Remove later.
 
     float vx = 0.0f;
@@ -91,7 +88,7 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Vehicle::body()
     float vz = 0.0f;
     float rollRate = 0.0f;
     float pitchRate = 0.0f;
-    float yawRate = 0.0f;
+    float yawRate = 0.1f;
 
     // Add vehicle model equations.
     

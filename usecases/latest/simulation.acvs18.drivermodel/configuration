@@ -68,3 +68,5 @@ odsupercomponent.pulsetimeack.exclude = odcockpit
 # NEXT, THE CONFIGURATION FOR OPENDLV SOFTWARE FOLLOWS. 
 #
 
+sim-world.client_root_frame_ids = 0
+sim-world.client_start_pose_0 = 0.0,0.0,0.0,0.0,0.0,0.0

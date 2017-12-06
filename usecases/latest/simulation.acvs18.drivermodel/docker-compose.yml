@@ -27,10 +27,16 @@ services:
         - .:/opt/opendlv.data
         command: "/opt/od4/bin/odsupercomponent --cid=${CID} --verbose=1 --configuration=/opt/opendlv.data/configuration"
 
-   # micro service for proxy-rhino-can.
     sim-lynx-vehicle:
         image: ${IMAGE}
         network_mode: "host"
         depends_on:
             - odsupercomponent
         command: "/opt/opendlv.lynx/bin/opendlv-sim-lynx-vehicle --cid=${CID} --freq=10"
+    
+    sim-world:
+        image: ${IMAGE}
+        network_mode: "host"
+        depends_on:
+            - odsupercomponent
+        command: "/opt/opendlv.lynx/bin/opendlv-sim-world --cid=${CID} --freq=10 --verbose=1"
