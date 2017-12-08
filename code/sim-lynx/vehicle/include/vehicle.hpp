@@ -48,6 +48,16 @@ class Vehicle : public odcore::base::module::TimeTriggeredConferenceClientModule
     float m_accelerationRequest;
     float m_decelerationRequest;
     float m_steeringRequest;
+    float m_vehicleLength;
+    float m_momentOfInertia;
+    float m_cf;
+    float m_cr;	
+    float m_a;
+    float m_b;
+    float m_lateralVelocity;
+    float m_yaw;
+    float m_longitudinalVelocity;
+    float m_vehicleMass;
 };
 
 }
