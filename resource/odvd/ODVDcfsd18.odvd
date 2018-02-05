@@ -32,6 +32,25 @@
   adaptation: 1201-1220
 */
 
+message opendlv.proxy.ToggleRequest [id = 170] {
+  enum ToggleState {
+    Off = 0,
+    On = 1,
+  };
+  uint16 pin [id = 1];
+  ToggleState state [id = 2];
+}
+
+message opendlv.proxy.PwmRequest [id = 155] {
+  uint16 pin [id = 1];
+  uint32 dutyCycleNs [id = 2];
+}
+
+message opendlv.proxy.AnalogReading [id = 173] {
+  uint16 pin [id = 1];
+  float voltage [id = 2];
+}
+
 message opendlv.coord.Position [id = 1000] {
   double x [id = 1];
   double y [id = 2];
