@@ -20,16 +20,18 @@
 #ifndef OPENDLV_SIM_LYNX_BICYCLEMODEL_HPP
 #define OPENDLV_SIM_LYNX_BICYCLEMODEL_HPP
 
-#include <opendavinci/odcore/base/module/DataTriggeredConferenceClientModule.h>
+#include <opendavinci/odcore/base/module/TimeTriggeredConferenceClientModule.h>
 #include <opendavinci/odcore/data/Container.h>
 
-#include <odvdcfsd18/GeneratedHeaders_ODVDcfsd18.h>
+//#include <odvdcfsd18/GeneratedHeaders_ODVDcfsd18.h>
+#include <odvdopendlvstandardmessageset/GeneratedHeaders_ODVDOpenDLVStandardMessageSet.h>
+#include <opendavinci/odcore/wrapper/Eigen.h>
 
 namespace opendlv {
 namespace sim {
 namespace lynx {
 
-class BicycleModel : public odcore::base::module::DataTriggeredConferenceClientModule {
+class BicycleModel : public odcore::base::module::TimeTriggeredConferenceClientModule {
  public:
   BicycleModel(int32_t const &, char **);
   BicycleModel(Bicyclemodel const &) = delete;
@@ -40,6 +42,16 @@ class BicycleModel : public odcore::base::module::DataTriggeredConferenceClientM
  private:
   void setUp();
   void tearDown();
+
+  odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode body();
+  float magicFormula(float &alpha, float &Fz, float const &mu);
+  Eigen::MatrixXd vehicleModel(Eigen::MatrixXd &x);
+
+  Eigen::MatrixXd m_vehicleModelParameters;
+  float m_sampleTime;
+  float m_groundAcceleration;
+  Eigen::MatrixXd m_states;
+  float m_delta;
 };
 
 }

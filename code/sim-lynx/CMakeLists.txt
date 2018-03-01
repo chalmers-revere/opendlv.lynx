@@ -46,9 +46,7 @@ set(LIBRARIES
   ${ODVDCFSD18_LIBRARIES})
 
 ### MICROSERVICE BEGIN ###
-add_subdirectory(brake)
-add_subdirectory(can)
-add_subdirectory(steering)
+add_subdirectory(bicyclemodel)
 ### MICROSERVICE END ###
 
 set(CHANGELOG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../ChangeLog")
