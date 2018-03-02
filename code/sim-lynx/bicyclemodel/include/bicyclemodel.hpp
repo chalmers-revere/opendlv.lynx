@@ -26,6 +26,7 @@
 //#include <odvdcfsd18/GeneratedHeaders_ODVDcfsd18.h>
 #include <odvdopendlvstandardmessageset/GeneratedHeaders_ODVDOpenDLVStandardMessageSet.h>
 #include <opendavinci/odcore/wrapper/Eigen.h>
+#include <opendavinci/odcore/base/Lock.h>
 
 namespace opendlv {
 namespace sim {
@@ -34,7 +35,7 @@ namespace lynx {
 class BicycleModel : public odcore::base::module::TimeTriggeredConferenceClientModule {
  public:
   BicycleModel(int32_t const &, char **);
-  BicycleModel(Bicyclemodel const &) = delete;
+  BicycleModel(BicycleModel const &) = delete;
   BicycleModel &operator=(BicycleModel const &) = delete;
   virtual ~BicycleModel();
   virtual void nextContainer(odcore::data::Container &);
@@ -45,13 +46,16 @@ class BicycleModel : public odcore::base::module::TimeTriggeredConferenceClientM
 
   odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode body();
   float magicFormula(float &alpha, float &Fz, float const &mu);
-  Eigen::MatrixXd vehicleModel(Eigen::MatrixXd &x);
+  Eigen::MatrixXf vehicleModel(Eigen::MatrixXf &x);
 
-  Eigen::MatrixXd m_vehicleModelParameters;
+  Eigen::MatrixXf m_vehicleModelParameters;
   float m_sampleTime;
   float m_groundAcceleration;
-  Eigen::MatrixXd m_states;
+  Eigen::MatrixXf m_states;
   float m_delta;
+  odcore::base::Mutex m_accelerationMutex;
+  odcore::base::Mutex m_aimPointMutex;
+  float m_kp;
 };
 
 }

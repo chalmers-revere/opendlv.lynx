@@ -16,14 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef OPENDLV_PROXY_LYNX_BRAKE_TESTSUITE_HPP
-#define OPENDLV_PROXY_LYNX_BRAKE_TESTSUITE_HPP
+#ifndef OPENDLV_SIM_LYNX_BICYCLEMODEL_TESTSUITE_HPP
+#define OPENDLV_SIM_LYNX_BICYCLEMODEL_TESTSUITE_HPP
 
 #include "cxxtest/TestSuite.h"
 
-#include "../include/brake.hpp"
+#include "../include/bicyclemodel.hpp"
 
-class BrakeTest : public CxxTest::TestSuite {
+class BicycleModelTest : public CxxTest::TestSuite {
   public:
     void setUp()
     {
