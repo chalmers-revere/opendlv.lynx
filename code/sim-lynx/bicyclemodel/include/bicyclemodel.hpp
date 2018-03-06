@@ -23,9 +23,7 @@
 #include <opendavinci/odcore/base/module/TimeTriggeredConferenceClientModule.h>
 #include <opendavinci/odcore/data/Container.h>
 
-//#include <odvdcfsd18/GeneratedHeaders_ODVDcfsd18.h>
 #include <odvdopendlvstandardmessageset/GeneratedHeaders_ODVDOpenDLVStandardMessageSet.h>
-#include <opendavinci/odcore/wrapper/Eigen.h>
 #include <opendavinci/odcore/base/Lock.h>
 
 namespace opendlv {
@@ -43,19 +41,14 @@ class BicycleModel : public odcore::base::module::TimeTriggeredConferenceClientM
  private:
   void setUp();
   void tearDown();
-
   odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode body();
-  float magicFormula(float &alpha, float &Fz, float const &mu);
-  Eigen::MatrixXf vehicleModel(Eigen::MatrixXf &x);
+  double magicFormula(double const &, double const &, double const &, 
+      double const &, double const &, double const &) const;
 
-  Eigen::MatrixXf m_vehicleModelParameters;
-  float m_sampleTime;
-  float m_groundAcceleration;
-  Eigen::MatrixXf m_states;
-  float m_delta;
-  odcore::base::Mutex m_accelerationMutex;
-  odcore::base::Mutex m_aimPointMutex;
-  float m_kp;
+  odcore::base::Mutex m_groundAccelerationMutex;
+  odcore::base::Mutex m_groundSteeringAngleMutex;
+  double m_groundAcceleration;
+  double m_groundSteeringAngle;
 };
 
 }
