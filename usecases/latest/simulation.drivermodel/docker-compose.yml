@@ -28,7 +28,7 @@ services:
         command: "/opt/od4/bin/odsupercomponent --cid=${CID} --verbose=1 --configuration=/opt/opendlv.data/configuration"
 
     sim-lynx-vehicle:
-        image: seresearch/opendlv-lynx-on-opendlv-on-opendlv-core-on-opendavinci-on-base
+        image: seresearch/opendlv-lynx-on-opendlv-core-on-opendavinci-on-base
         network_mode: "host"
         depends_on:
             - odsupercomponent
@@ -39,4 +39,4 @@ services:
         network_mode: "host"
         depends_on:
             - odsupercomponent
-        command: "/opt/opendlv.sim/bin/opendlv-sim-world --cid=${CID} --freq=10 --id=0 --verbose=1"
+        command: "/opt/opendlv.sim/bin/opendlv-sim-world --cid=${CID} --freq=10 --id=0 --verbose=0"
