@@ -40,3 +40,10 @@ services:
         depends_on:
             - odsupercomponent
         command: "/opt/opendlv.sim/bin/opendlv-sim-world --cid=${CID} --freq=10 --id=0 --verbose=0"
+
+    ui-default:
+        image: chalmersrevere/opendlv-ui-default:v0.0.1
+        network_mode: "host"
+        depends_on:
+            - odsupercomponent
+
