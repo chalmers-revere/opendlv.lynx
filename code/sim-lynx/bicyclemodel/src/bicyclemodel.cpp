@@ -70,7 +70,7 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
   double const frontToCog = kv.getValue<double>("sim-lynx-bicyclemodel.frontToCog");
   double const rearToCog = length - frontToCog;
   double const frictionCoefficient = kv.getValue<double>("sim-lynx-bicyclemodel.frictionCoefficient");
-  
+
   double const magicFormulaCAlpha = kv.getValue<double>("sim-lynx-bicyclemodel.magicFormulaCAlpha");
   double const magicFormulaC = kv.getValue<double>("sim-lynx-bicyclemodel.magicFormulaC");
   double const magicFormulaE = kv.getValue<double>("sim-lynx-bicyclemodel.magicFormulaE");
@@ -82,11 +82,6 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
   double yawRate{0.0};
 
   while (getModuleStateAndWaitForRemainingTimeInTimeslice() == odcore::data::dmcp::ModuleStateMessage::RUNNING) {
-
-    // TODO: Is this really what we want? The vehicle can never reverse or stop.
-    if (longitudinalSpeed < 0.0001) {
-      longitudinalSpeed = 0.01;
-    }
     
     double groundAccelerationCopy;
     double groundSteeringAngleCopy;
@@ -96,10 +91,10 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
       groundAccelerationCopy = m_groundAcceleration;
       groundSteeringAngleCopy = m_groundSteeringAngle;
     }
-  
+
     double slipAngleFront = groundSteeringAngleCopy - std::atan(
         (lateralSpeed + frontToCog * yawRate) / std::abs(longitudinalSpeed));
-    double slipAngleRear = -std::atan((lateralSpeed - rearToCog * yawRate) / 
+    double slipAngleRear = -std::atan((lateralSpeed - rearToCog * yawRate) /
         std::abs(longitudinalSpeed));
 
     double forceFrontZ = mass * g * (frontToCog / (frontToCog + length));
@@ -110,15 +105,15 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
     double forceRearY = magicFormula(slipAngleRear, forceRearZ,
         frictionCoefficient, magicFormulaCAlpha, magicFormulaC, magicFormulaE);
 
-    double longitudinalSpeedDot = groundAccelerationCopy - 
-      forceFrontY * std::sin(groundSteeringAngleCopy) / mass + 
+    double longitudinalSpeedDot = groundAccelerationCopy -
+      forceFrontY * std::sin(groundSteeringAngleCopy) / mass +
       yawRate * lateralSpeed;
 
-    double lateralSpeedDot = 
+    double lateralSpeedDot =
       (forceFrontY * std::cos(groundSteeringAngleCopy) + forceRearY) / mass -
       yawRate * lateralSpeed;
 
-    double yawRateDot = (length * forceFrontY * 
+    double yawRateDot = (length * forceFrontY *
         std::cos(groundSteeringAngleCopy) - frontToCog * forceRearY) /
       momentOfInertiaZ;
 
@@ -147,8 +142,8 @@ void BicycleModel::tearDown()
 {
 }
 
-double BicycleModel::magicFormula(double const &a_slipAngle, double const &a_forceZ, 
-    double const &a_frictionCoefficient, double const &a_cAlpha, double const &a_c, 
+double BicycleModel::magicFormula(double const &a_slipAngle, double const &a_forceZ,
+    double const &a_frictionCoefficient, double const &a_cAlpha, double const &a_c,
     double const &a_e) const
 {
   double const b = a_cAlpha / (a_c * a_frictionCoefficient * a_forceZ);
