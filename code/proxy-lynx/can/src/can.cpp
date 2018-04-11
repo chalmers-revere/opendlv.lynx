@@ -349,6 +349,18 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
             odcore::base::Lock l(m_requests.m_mutex);
             odcore::data::TimeStamp now;
 
+            
+
+            //KNOB MESSAGE TEMPORARILY CONESHAPE FOR TESTING
+
+            opendlv::coord::ConeShape knobbers;
+            knobbers.setRadius(2); //or something..
+            knobbers.setHeight(2); //..
+
+            odcore::data::Container knobberContainer(knobbers);
+            canmapping::opendlv::coord::ConeShape knobberMapping;
+            automotive::GenericCANMessage genericCanMessage = knobberMapping.encode(knobberContainer);
+            m_device->write(genericCanMessage);
             /*float brakeRequestValue = 0.0f;
             float throttleRequestValue = 0.0f;
             float steeringRequestValue = 0.0f;
