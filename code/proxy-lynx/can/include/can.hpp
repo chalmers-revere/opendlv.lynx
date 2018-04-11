@@ -78,6 +78,7 @@ class Can : public odcore::base::module::TimeTriggeredConferenceClientModule,
             bool m_enableActuationThrottle;
             float m_acceleration;
             float m_steering;
+            float m_groundspeed;
             odcore::data::TimeStamp m_lastUpdate;
     };
 
@@ -96,30 +97,30 @@ class Can : public odcore::base::module::TimeTriggeredConferenceClientModule,
     virtual odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode body();
 
    private:
-    void setUpRecordingGenericCANMessage(const std::string &timeStampForFileName);
-    void setUpRecordingMappedGenericCANMessage(const std::string &timeStampForFileName);
+    //void setUpRecordingGenericCANMessage(const std::string &timeStampForFileName);
+    //void setUpRecordingMappedGenericCANMessage(const std::string &timeStampForFileName);
 
    private:
-    void dumpASCData(const automotive::GenericCANMessage &gcm);
-    void dumpCSVData(odcore::data::Container &c);
+    //void dumpASCData(const automotive::GenericCANMessage &gcm);
+    //void dumpCSVData(odcore::data::Container &c);
 
    private:
     Requests m_requests;
 
-    odcore::base::FIFOQueue m_fifoGenericCanMessages;
-    std::unique_ptr< odtools::recorder::Recorder > m_recorderGenericCanMessages;
+    //odcore::base::FIFOQueue m_fifoGenericCanMessages;
+    //std::unique_ptr< odtools::recorder::Recorder > m_recorderGenericCanMessages;
 
-    odcore::base::FIFOQueue m_fifoMappedCanMessages;
-    std::unique_ptr< odtools::recorder::Recorder > m_recorderMappedCanMessages;
+    //odcore::base::FIFOQueue m_fifoMappedCanMessages;
+    //std::unique_ptr< odtools::recorder::Recorder > m_recorderMappedCanMessages;
 
     std::shared_ptr< automotive::odcantools::CANDevice > m_device;
 
     canmapping::CanMapping m_cfsdCanMessageMapping;
 
-    odcore::data::TimeStamp m_startOfRecording;
-    std::shared_ptr< std::fstream > m_ASCfile;
-    std::map< uint32_t, std::shared_ptr< std::fstream > > m_mapOfCSVFiles;
-    std::map< uint32_t, std::shared_ptr< odcore::reflection::CSVFromVisitableVisitor > > m_mapOfCSVVisitors;
+    //odcore::data::TimeStamp m_startOfRecording;
+    //std::shared_ptr< std::fstream > m_ASCfile;
+    //std::map< uint32_t, std::shared_ptr< std::fstream > > m_mapOfCSVFiles;
+    //std::map< uint32_t, std::shared_ptr< odcore::reflection::CSVFromVisitableVisitor > > m_mapOfCSVVisitors;
 };
 
 }

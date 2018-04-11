@@ -61,6 +61,7 @@ Can::Requests::Requests()
     , m_enableActuationThrottle(false)
     , m_acceleration(0.0f)
     , m_steering(0.0f)
+    , m_groundspeed(0.0f)
     , m_lastUpdate()
 {}
 
@@ -70,16 +71,17 @@ Can::Can(const int &argc, char **argv)
     : TimeTriggeredConferenceClientModule(argc, argv, "proxy-lynx-can")
     , GenericCANMessageListener()
     , m_requests()
-    , m_fifoGenericCanMessages()
-    , m_recorderGenericCanMessages()
-    , m_fifoMappedCanMessages()
-    , m_recorderMappedCanMessages()
+    //, m_fifoGenericCanMessages()
+    //, m_recorderGenericCanMessages()
+    //, m_fifoMappedCanMessages()
+    //, m_recorderMappedCanMessages()
     , m_device()
     , m_cfsdCanMessageMapping()
-    , m_startOfRecording()
-    , m_ASCfile()
-    , m_mapOfCSVFiles()
-    , m_mapOfCSVVisitors() {}
+    //, m_startOfRecording()
+    //, m_ASCfile()
+    //, m_mapOfCSVFiles()
+    //, m_mapOfCSVVisitors() 
+    {}
 
 Can::~Can() {}
 
@@ -94,7 +96,7 @@ void Can::setUp() {
         cout << "[" << getName() << "]: " << "Successfully opened CAN device '" << DEVICE_NODE << "'." << endl;
 
         // Automatically record all received raw CAN messages.
-        m_startOfRecording = TimeStamp();
+       /* m_startOfRecording = TimeStamp();
         const string TIMESTAMP = m_startOfRecording.getYYYYMMDD_HHMMSS_noBlankNoColons();
 
         const bool RECORD_GCM = (getKeyValueConfiguration().getValue< int >("proxy-lynx-can.record_gcm") == 1);
@@ -130,7 +132,7 @@ void Can::setUp() {
         }
         if (!m_requests.m_enableActuationThrottle) {
           std::cout << "The throttle is not enabled for control." << std::endl;
-        }
+        }*/
 
         // Start the wrapped CAN device to receive CAN messages concurrently.
         m_device->start();
@@ -146,7 +148,7 @@ void Can::tearDown() {
     }
 
     // Flush output to CSV files.
-    for (auto it = m_mapOfCSVFiles.begin(); it != m_mapOfCSVFiles.end(); it++) {
+    /*for (auto it = m_mapOfCSVFiles.begin(); it != m_mapOfCSVFiles.end(); it++) {
         it->second->flush();
         it->second->close();
     }
@@ -155,10 +157,10 @@ void Can::tearDown() {
     if (m_ASCfile.get() != NULL) {
         m_ASCfile->flush();
         m_ASCfile->close();
-    }
+    }*/
 }
 
-void Can::setUpRecordingMappedGenericCANMessage(const string &timeStampForFileName) {
+/*void Can::setUpRecordingMappedGenericCANMessage(const string &timeStampForFileName) {
     // URL for storing containers containing GenericCANMessages.
     stringstream recordingUrl;
     recordingUrl << "file://"
@@ -239,24 +241,19 @@ void Can::setUpRecordingGenericCANMessage(const string &timeStampForFileName) {
              << "can_data_" << timeStampForFileName << ".asc";
     m_ASCfile = shared_ptr< fstream >(new fstream(fileName.str(), ios::out));
     (*m_ASCfile) << "Time (s) Channel ID RX/TX d Length Byte 1 Byte 2 Byte 3 Byte 4 Byte 5 Byte 6 Byte 7 Byte 8" << endl;
-}
+}*/
 
 void Can::nextContainer(Container &a_container) {
-    /*if (a_container.getDataType() == opendlv::proxy::ActuationRequest::ID()) {
-        auto actuationRequest = a_container.getData<opendlv::proxy::ActuationRequest>();
+
+  //praktiskt exempel
+
+    /*if (a_container.getDataType() == opendlv::proxy::GroundspeedReadníng::ID()) {
+        auto groundspeedReading = a_container.getData<opendlv::proxy::GroundspeedReadníng>();
         if (actuationRequest.getIsValid()) {
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_steering = actuationRequest.getSteering();
-            m_requests.m_acceleration = actuationRequest.getAcceleration();
-            if (m_requests.m_acceleration < 0.0f) {
-                const float max_deceleration = -2.0f;
-                if (m_requests.m_acceleration < max_deceleration) {
-                    std::cout << "WARNING: Deceleration was limited to " 
-                              << max_deceleration << ". This should never happen, and "
-                              << "may be a safety violating behaviour!" << std::endl;
-                    m_requests.m_acceleration = max_deceleration;
-                }
+            m_requests.m_groundspeed = groundSpeedReading.getGroundspeed();
+            
             }
         }
     }*/
@@ -267,7 +264,7 @@ void Can::nextContainer(Container &a_container) {
 void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
 {
     // Log raw CAN data in ASC format.
-    dumpASCData(gcm);
+    //dumpASCData(gcm);
 
     // Map CAN message to high-level data structures as defined in the ODVD file.
     vector< Container > result = m_cfsdCanMessageMapping.mapNext(gcm);
@@ -279,9 +276,9 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
         c.setReceivedTimeStamp(gcm.getDriverTimeStamp());
 
         // Enqueue mapped container for direct recording.
-        if (m_recorderMappedCanMessages.get()) {
+        /*if (m_recorderMappedCanMessages.get()) {
             m_fifoMappedCanMessages.add(c);
-        }
+        }*/
 
         getConference().send(c);
 
@@ -308,19 +305,19 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
     }
 
     // Enqueue CAN message wrapped as Container to be recorded if we have a valid recorder.
-    if (m_recorderGenericCanMessages.get()) {
+    /*if (m_recorderGenericCanMessages.get()) {
         Container c(gcm);
         c.setSampleTimeStamp(gcm.getDriverTimeStamp());
         c.setSentTimeStamp(gcm.getDriverTimeStamp());
         c.setReceivedTimeStamp(gcm.getDriverTimeStamp());
         m_fifoGenericCanMessages.add(c);
-    }
+    }*/
 }
 
 odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
     while (getModuleStateAndWaitForRemainingTimeInTimeslice() == odcore::data::dmcp::ModuleStateMessage::RUNNING) {
         // Record GenericCANMessages.
-        if (m_recorderGenericCanMessages.get()) {
+        /*if (m_recorderGenericCanMessages.get()) {
             const uint32_t ENTRIES = m_fifoGenericCanMessages.getSize();
             for (uint32_t i = 0; i < ENTRIES; i++) {
                 Container c = m_fifoGenericCanMessages.leave();
@@ -342,14 +339,14 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
                 // Transform container to CSV file.
                 dumpCSVData(c);
             }
-        }
+        }*/
 
         // Write values to CAN.
         {
             odcore::base::Lock l(m_requests.m_mutex);
             odcore::data::TimeStamp now;
 
-            
+
 
             //KNOB MESSAGE TEMPORARILY CONESHAPE FOR TESTING
 
@@ -361,10 +358,9 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
             canmapping::opendlv::coord::ConeShape knobberMapping;
             automotive::GenericCANMessage genericCanMessage = knobberMapping.encode(knobberContainer);
             m_device->write(genericCanMessage);
-            /*float brakeRequestValue = 0.0f;
-            float throttleRequestValue = 0.0f;
-            float steeringRequestValue = 0.0f;
+            /*
 
+            //Update values depending on timestamps
             const int64_t ONE_SECOND = 1 * 1000 * 1000;
             const bool TIMEOUT = !(abs((now - m_requests.m_lastUpdate).toMicroseconds()) < ONE_SECOND);
             if (!TIMEOUT) {
@@ -377,51 +373,26 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
 
 
             /*
-            // Send brake request message.
-            {
-                opendlv::proxy::rhino::BrakeRequest brakeRequest;
-                brakeRequest.setEnableRequest(!TIMEOUT && m_requests.m_enableActuationBrake);
-                brakeRequest.setBrake((m_requests.m_enableActuationBrake) ? brakeRequestValue : 0.0f);
 
-                odcore::data::Container brakeRequestContainer(brakeRequest);
-                canmapping::opendlv::proxy::rhino::BrakeRequest brakeRequestMapping;
-                automotive::GenericCANMessage genericCanMessage = brakeRequestMapping.encode(brakeRequestContainer);
-                m_device->write(genericCanMessage);
-            }
+            //exempler forts
+              
+             {
+                opendlv::proxy::GroundSpeedRequest groundspeedRequest;
+                groundSpeedRequest.setGroundspeed(m_request.m_groundspeed);
+                odcore::data::Containter groundspeedContainer(groundspeedRequest);
+                canmapping::opendlv::proxy::GroundSpeedRequest groundspeedMapping;
+                automotive::GenericCANMessage genericCANmessageGroundspeed = groundspeedMapping.endcode(groundspeedContainer);
+                m_device->write(genericCANmessageGroundspeed);
 
-            // Send throttle request message.
-            {
-                opendlv::proxy::rhino::AccelerationRequest accelerationRequest;
-                accelerationRequest.setEnableRequest(!TIMEOUT && m_requests.m_enableActuationThrottle);
-                accelerationRequest.setAccelerationPedalPosition((m_requests.m_enableActuationThrottle) ? throttleRequestValue : 0.0f);
 
-                odcore::data::Container accelerationRequestContainer(accelerationRequest);
-                canmapping::opendlv::proxy::rhino::AccelerationRequest accelerationRequestMapping;
-                automotive::GenericCANMessage genericCanMessage = accelerationRequestMapping.encode(accelerationRequestContainer);
-                m_device->write(genericCanMessage);
-            }
-
-            // Send steering request message.
-            {
-                opendlv::proxy::rhino::SteeringRequest steeringRequest;
-                steeringRequest.setEnableRequest(!TIMEOUT && m_requests.m_enableActuationSteering);
-                steeringRequest.setSteeringRoadWheelAngle(steeringRequestValue);
-
-                // Must be 33.535 to disable deltatorque.
-                steeringRequest.setSteeringDeltaTorque(33.535);
-
-                odcore::data::Container steeringRequestContainer(steeringRequest);
-                canmapping::opendlv::proxy::rhino::SteeringRequest steeringRequestMapping;
-                automotive::GenericCANMessage genericCanMessage = steeringRequestMapping.encode(steeringRequestContainer);
-                m_device->write(genericCanMessage);
-            }*/
+             } */
         }
     }
 
     return odcore::data::dmcp::ModuleExitCodeMessage::OKAY;
 }
 
-void Can::dumpCSVData(Container &c) {
+/*void Can::dumpCSVData(Container &c) {
     // Add time stamps for CSV output.
     const uint64_t receivedFromCAN = c.getReceivedTimeStamp().toMicroseconds();
 
@@ -443,14 +414,14 @@ void Can::dumpCSVData(Container &c) {
             m.addField(m_receivedTS_ptr);
             m.accept(*m_mapOfCSVVisitors[c.getDataType()]);
         }
-        /*if (c.getDataType() == opendlv::proxy::GroundSteeringReading::ID()) {
+        if (c.getDataType() == opendlv::proxy::GroundSteeringReading::ID()) {
             opendlv::proxy::rhino::Propulsion temp = c.getData< opendlv::proxy::rhino::Propulsion >();
             MessageFromVisitableVisitor mfvv;
             temp.accept(mfvv);
             Message m = mfvv.getMessage();
             m.addField(m_receivedTS_ptr);
             m.accept(*m_mapOfCSVVisitors[c.getDataType()]);
-        }*/
+        }
     }
 }
 
@@ -471,7 +442,7 @@ void Can::dumpASCData(const automotive::GenericCANMessage &gcm) {
         }
         (*m_ASCfile) << endl;
     }
-}
+}*/
 
 }
 }
