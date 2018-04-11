@@ -18,7 +18,79 @@ cmake_minimum_required(VERSION 2.8)
 
 project(opendlv-proxy-lynx-can)
 
-include_directories(include)
+# Set the search path for .cmake files.
+SET (CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cmake.Modules" ${CMAKE_MODULE_PATH})
+
+# Add a local CMake module search path dependent on the desired installation destination.
+# Thus, artifacts from the complete source build can be given precendence over any installed versions.
+IF(UNIX)
+    SET (CMAKE_MODULE_PATH "${CMAKE_INSTALL_PREFIX}/share/cmake-${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}/Modules" ${CMAKE_MODULE_PATH})
+ENDIF()
+IF(WIN32)
+    SET (CMAKE_MODULE_PATH "${CMAKE_INSTALL_PREFIX}/CMake-${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}/Modules" ${CMAKE_MODULE_PATH})
+ENDIF()
+
+###########################################################################
+# Include flags for compiling.
+INCLUDE (CompileFlags)
+
+###########################################################################
+# Find and configure CxxTest.
+INCLUDE (CheckCxxTestEnvironment)
+
+###########################################################################
+# Find OpenDaVINCI.
+FIND_PACKAGE (OpenDaVINCI REQUIRED)
+
+###########################################################################
+# Find ODVDOpenDLVData.
+#set(CMAKE_MODULE_PATH "${ODVDOPENDLVDATA_DIR}/share/cmake-${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}/Modules" ${CMAKE_MODULE_PATH})
+#find_package(ODVDOpenDLVData REQUIRED)
+
+###########################################################################
+# Find ODVDcfsd18.
+find_package(ODVDcfsd18 REQUIRED)
+
+###########################################################################
+# Find librhinogw.
+find_package(cfsd18gw REQUIRED)
+
+###########################################################################
+# Find AutomotiveData.
+set(AUTOMOTIVEDATA_DIR "${OPENDAVINCI_DIR}")
+find_package(AutomotiveData REQUIRED)
+
+###########################################################################
+# Find odcantools.
+set(ODCANTOOLS_DIR "${OPENDAVINCI_DIR}")
+find_package(odcantools REQUIRED)
+
+###############################################################################
+# Set header files from OpenDaVINCI.
+INCLUDE_DIRECTORIES (SYSTEM ${OPENDAVINCI_INCLUDE_DIRS})
+#INCLUDE_DIRECTORIES (SYSTEM ${ODVDOPENDLVDATA_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES (SYSTEM ${ODCANTOOLS_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES (SYSTEM ${AUTOMOTIVEDATA_INCLUDE_DIRS})
+
+INCLUDE_DIRECTORIES (SYSTEM ${ODVDCFSD18_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES (SYSTEM ${CFSD18GW_INCLUDE_DIRS})
+
+
+# Set header files from OpenDLV.
+
+
+# Set include directory.
+INCLUDE_DIRECTORIES(include)
+
+# Set libraries to link against.
+set(LIBRARIES ${LIBRARIES}
+  ${ODCANTOOLS_LIBRARIES}
+  ${CFSD18GW_LIBRARIES}
+  )
+
+
+
+
 
 file(GLOB_RECURSE SOURCEFILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_library(${PROJECT_NAME}-static STATIC ${SOURCEFILES})

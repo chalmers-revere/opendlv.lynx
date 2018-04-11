@@ -21,7 +21,7 @@
 
 #include "cxxtest/TestSuite.h"
 
-#include "../include/can.hpp"
+//#include "../include/can.hpp"
 
 class CanTest : public CxxTest::TestSuite {
   public:

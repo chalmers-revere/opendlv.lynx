@@ -18,6 +18,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(opendlv.lynx)
 
+#set(CMAKE_VERBOSE_MAKEFILE ON)
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake.Modules" ${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH "${OPENDAVINCI_DIR}/share/cmake-${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}/Modules" ${CMAKE_MODULE_PATH})
 
@@ -67,9 +69,37 @@ ExternalProject_Add (libodvdcfsd18
   INSTALL_COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/libodvdcfsd18-prefix/src/libodvdcfsd18-build --target install COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/libodvdcfsd18-prefix/src/libodvdcfsd18-build --target ${MAKE_PACKAGE})
 ### ODVD END ###
 
+###########################################################################
+# This "external project" simply deletes the existing libcfsd18gw.
+ExternalProject_Add(libcfsd18gw-cleanup
+    DOWNLOAD_COMMAND ""
+    UPDATE_COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/libcfsd18gw
+    PATCH_COMMAND ""
+    SOURCE_DIR ""
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    TEST_COMMAND ""
+    INSTALL_COMMAND "")
+
+message(STATUS "DELETION OF GW COMPLETE")
+# This "external project" builds libcfsd18gw.
+ExternalProject_Add(libcfsd18gw
+    DEPENDS libcfsd18gw-cleanup libodvdcfsd18
+    DOWNLOAD_COMMAND ""
+    UPDATE_COMMAND cd ${CMAKE_CURRENT_BINARY_DIR} && ${Java_JAVA_EXECUTABLE} -jar ${ODCANDATASTRUCTUREGENERATOR_EXECUTABLE} --withCMake ${CMAKE_SOURCE_DIR}/resource/can/cfsd18gw.can
+    PATCH_COMMAND ""
+    SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libcfsd18gw"
+    CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
+    CMAKE_ARGS "-DOPENDAVINCI_DIR=${OPENDAVINCI_DIR}"
+    CMAKE_ARGS "-DCXXTEST_INCLUDE_DIR=${CXXTEST_INCLUDE_DIR}"
+    TEST_BEFORE_INSTALL 1
+INSTALL_COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/libcfsd18gw-prefix/src/libcfsd18gw-build --target install COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/libcfsd18gw-prefix/src/libcfsd18gw-build --target ${MAKE_PACKAGE})
+
+
+message(STATUS "BUILD OF GW COMPLETE")
 ### NAMESPACE BEGIN ###
 ExternalProject_Add (proxy-lynx
-  DEPENDS libodvdcfsd18
+  DEPENDS libodvdcfsd18 libcfsd18gw
   DOWNLOAD_COMMAND ""
   UPDATE_COMMAND ""
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/code/proxy-lynx"
@@ -77,6 +107,7 @@ ExternalProject_Add (proxy-lynx
   CMAKE_ARGS "-DOPENDAVINCI_DIR=${OPENDAVINCI_DIR}"
   CMAKE_ARGS "-DODVDOPENDLVSTANDARDMESSAGESET_DIR=${ODVDOPENDLVSTANDARDMESSAGESET_DIR}"
   CMAKE_ARGS "-DCXXTEST_INCLUDE_DIR=${CXXTEST_INCLUDE_DIR}"
+  CMAKE_ARGS "-DODVDCFSD18_DIR=${ODVDCFSD18_DIR}"
   CMAKE_ARGS "-DEIGEN3_INCLUDE_DIR=${OPENDAVINCI_DIR}/include/opendavinci"
   TEST_BEFORE_INSTALL 1
   INSTALL_COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/proxy-lynx-prefix/src/proxy-lynx-build --target install COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/proxy-lynx-prefix/src/proxy-lynx-build --target ${MAKE_PACKAGE})

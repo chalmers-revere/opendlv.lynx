@@ -1,0 +1,30 @@
+
+using AutomotiveData;
+using ODVDcfsd18;
+
+
+// CAN Message for SoC
+CAN Message 0xa1 BMS_DL_Data is 8 bytes {
+    Accumulator_SoC at bit 32 for 16 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    Accumulator_Voltage at bit 16 for 16 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,65535.0];
+    Accumulator_Temp at bit 48 for 16 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,65535.0];
+    Accumulator_Current at bit 0 for 16 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,65535.0];
+}
+
+// CAN Message for Knobs
+CAN Message 0xc3 NF_DL_Buttons_RTD is 4 bytes {
+    Redy_To_Drive at bit 24 for 8 bit is signed little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    Knob_R at bit 16 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    Knob_L at bit 8 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    Buttons at bit 0 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+}
+
+mapping opendlv.system.SignalStatusMessage {
+    BMS_DL_Data.Accumulator_SoC : 1;
+
+}
+
+mapping opendlv.coord.ConeShape {
+    NF_DL_Buttons_RTD.Knob_R : 1;
+    NF_DL_Buttons_RTD.Knob_L : 2;
+}
