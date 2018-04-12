@@ -295,11 +295,12 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
           getConference().send(groundSpeedReadingContainer);
         }*/
 
-      if(c.getDataType() == opendlv::system::SignalStatusMessage::ID()){
-        auto signalStatus = c.getData<opendlv::system::SignalStatusMessage>();
-        const uint32_t code = signalStatus.getCode();
+      if(c.getDataType() == opendlv::coord::ConeShape::ID()){
+        auto knobbers = c.getData<opendlv::coord::ConeShape>();
+        const uint32_t knob1 = knobbers.getRadius();
+        const uint32_t knob2 = knobbers.getHeight();
 
-        std::cout << "SoC is: " << code << std::endl;
+        std::cout << "knobber 1: " << knob1 << " knobber 2: " << knob2 << std::endl;
 
       }
     }
@@ -346,17 +347,16 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
             odcore::base::Lock l(m_requests.m_mutex);
             odcore::data::TimeStamp now;
 
-
+            //
 
             //KNOB MESSAGE TEMPORARILY CONESHAPE FOR TESTING
 
-            opendlv::coord::ConeShape knobbers;
-            knobbers.setRadius(2); //or something..
-            knobbers.setHeight(2); //..
+            opendlv::system::SignalStatusMessage signalStatus;
+            signalStatus.setCode(2); //or something..
 
-            odcore::data::Container knobberContainer(knobbers);
-            canmapping::opendlv::coord::ConeShape knobberMapping;
-            automotive::GenericCANMessage genericCanMessage = knobberMapping.encode(knobberContainer);
+            odcore::data::Container signalContainer(signalStatus);
+            canmapping::opendlv::system::SignalStatusMessage signalMapping;
+            automotive::GenericCANMessage genericCanMessage = signalMapping.encode(signalContainer);
             m_device->write(genericCanMessage);
             /*
 
@@ -381,7 +381,7 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
                 groundSpeedRequest.setGroundspeed(m_request.m_groundspeed);
                 odcore::data::Containter groundspeedContainer(groundspeedRequest);
                 canmapping::opendlv::proxy::GroundSpeedRequest groundspeedMapping;
-                automotive::GenericCANMessage genericCANmessageGroundspeed = groundspeedMapping.endcode(groundspeedContainer);
+                automotive::GenericCANMessage genericCANmessageGroundspeed = groundspeedMapping.encode(groundspeedContainer);
                 m_device->write(genericCANmessageGroundspeed);
 
 
