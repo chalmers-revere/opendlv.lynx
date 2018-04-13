@@ -159,6 +159,12 @@ CAN Message 0xc1 NF_NR_Sensors_1 is 5 bytes {
     Disk_Temp_FR at bit 8 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,255.0];
     Disk_Temp_FL at bit 0 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,255.0];
 }
+CAN Message 0xb1 NF_NR_Sensors_2 is 8 bytes {
+    Damper_RR at bit 48 for 16 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,6000.0];
+    Damper_RL at bit 32 for 16 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,6000.0];
+    Wheel_Speed_RR at bit 16 for 16 bit is unsigned little endian multiply by 0.1 add 0.0 with range [0.0,6553.5];
+    Wheel_Speed_RL at bit 0 for 16 bit is unsigned little endian multiply by 0.1 add 0.0 with range [0.0,6553.5];
+}
 mapping NR_DL_Sensors_4_NEW {
 }
 mapping NR_DL_TV_out_3_NEW {

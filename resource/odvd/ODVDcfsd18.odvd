@@ -237,3 +237,68 @@ message opendlv.proxy.WaterTemperature [id = 1038] {
   uint8 temp2 [id = 2];
   uint8 temp3 [id = 3];
 }
+
+message opendlv.proxy.HeartBeatBMS [id = 1039] {
+  uint8 statusBMS [id = 1];
+}
+
+message opendlv.proxy.Accumulator [id = 1040] {
+  uint16 SoC [id = 1];
+  uint16 temp [id = 2];
+}
+
+message opendlv.proxy.HeartBeatNodeOne [id = 1041] {
+  uint8 status [id = 1];
+}
+
+message opendlv.proxy.BrakePressure [id = 1042] {
+  uint8 brakePressure [id = 1];
+}
+
+message opendlv.proxy.FrontWheelVelocity [id = 1042] {
+  uint16 frontRight [id = 1];
+  uint16 frontLeft [id = 2];
+}
+
+message opendlv.proxy.HeartBeatNodeTwo [id = 1042] {
+  uint8 status [id = 1];
+}
+
+message opendlv.proxy.SensorTwoTemps [id = 1043] {
+  
+  uint8 rotorAmbientTempLeft [id = 1];
+  uint8 rotorAmbientTempRight [id = 2];
+  uint8 rotorObjectTempLeft [id = 3];
+  uint8 rotorObjectTempRight [id = 4];
+  uint8 gearBoxTempLeft [id = 5];
+  uint8 gearBoxTempRight [id = 6];
+}
+
+
+/*BMS_DL_Hartbeat:    BMS_Status (uint8_t)
+
+BMS_DL_Data:        Accumulator_SoC (uint16_t)
+
+            Accumulator_Temp (uint16_t)
+
+NF_DL_Hartbeat:     Node_1_Status (uint8_t)     #Status of the front node
+
+NF_NR_Sensors_1:    Break (uint8_t)         #Brake not break...
+
+NF_NR_Sensors_2:    Wheel_Speed_FL (uint16_t)
+
+            Wheel_Speed_FR (uint16_t)
+
+NR_DL_Hartbeat:     Node_2_Status (uint8_t)     #status of the rear node
+
+NR_DL_Sensors_2:    Rotor_Ambient_Temp_L (uint8_t)
+
+            Rotor_Ambient_Temp_R (uint8_t)
+
+            Rotor_Object_Temp_L (uint8_t)
+
+            Rotor_Object_Temp_R (uint8_t)
+
+            GearBox_Temp_L (uint8_t)
+
+            GearBox_Temp_R (uint8_t)*/

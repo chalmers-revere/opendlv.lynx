@@ -294,15 +294,62 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
           Container groundSpeedReadingContainer = Container(groundSpeedReading);
           getConference().send(groundSpeedReadingContainer);
         }*/
+        if(c.getDataType() == opendlv::proxy::SensorTwoTemps::ID()){
+          auto sensor2Readings = c.getData<opendlv::proxy::SensorTwoTemps>();
+          const uint8_t RATempLeft = sensor2Readings.getRotorAmbientTempLeft();
+          const uint8_t RATempRight = sensor2Readings.getRotorAmbientTempRight();
+          const uint8_t ROTempLeft = sensor2Readings.getRotorObjectTempLeft();
+          const uint8_t ROTempRight = sensor2Readings.getRotorObjectTempRight();
+          const uint8_t GBTempLeft = sensor2Readings.getGearBoxTempLeft();
+          const uint8_t GBTempRight = sensor2Readings.getGearBoxTempRight();
 
-      if(c.getDataType() == opendlv::coord::ConeShape::ID()){
-        auto knobbers = c.getData<opendlv::coord::ConeShape>();
-        const uint32_t knob1 = knobbers.getRadius();
-        const uint32_t knob2 = knobbers.getHeight();
+          std::cout << "Rotor ambient temperature: " << RATempLeft << " : " << RATempRight << std::endl;
+          std::cout << "Rotor object temperature: " << ROTempLeft << " : " << ROTempRight << std::endl;
+          std::cout << "Gearbox temperature: " << GBTempLeft << " : " << GBTempRight << std::endl; 
 
-        std::cout << "knobber 1: " << knob1 << " knobber 2: " << knob2 << std::endl;
+        }
+        if(c.getDataType() == opendlv::proxy::HeartBeatNodeTwo::ID()){
 
-      }
+          auto node2Reading = c.getData<opendlv::proxy::HeartBeatNodeTwo>();
+          const uint8_t node2 = node2Reading.getStatus();
+
+          std::cout << "Node 2 status: " << static_cast<int>(node2) << std::endl;
+        }
+        if(c.getDataType() == opendlv::proxy::FrontWheelVelocity::ID()){
+          auto frontWheelVel = c.getData<opendlv::proxy::FrontWheelVelocity>();
+          const uint16_t left = frontWheelVel.getFrontLeft();
+          const uint16_t right = frontWheelVel.getFrontRight();
+          const uint16_t frontAvgSpeed = (left + right)/2;
+          std::cout << "Avarage front wheel speed: " << frontAvgSpeed << std::endl;
+        }
+        if(c.getDataType() == opendlv::proxy::BrakePressure::ID()){
+          auto breakpressureReading = c.getData<opendlv::proxy::BrakePressure>();
+          const uint8_t brakepressure = breakpressureReading.getBrakePressure();
+
+          std::cout << "Brake pressure: " << static_cast<int>(brakepressure) << std::endl;
+        }
+        if(c.getDataType() == opendlv::proxy::HeartBeatNodeOne::ID()){
+
+          auto node1Reading = c.getData<opendlv::proxy::HeartBeatNodeOne>();
+          const uint8_t node1 = node1Reading.getStatus();
+
+          std::cout << "Node 1 status: " << static_cast<int>(node1) << std::endl;
+        }
+
+        if(c.getDataType() == opendlv::proxy::HeartBeatBMS::ID()) {
+          auto BMSReading = c.getData<opendlv::proxy::HeartBeatBMS>();
+          const uint8_t status = BMSReading.getStatusBMS();
+          std::cout << "BMS Status: " << static_cast<int>(status) << std::endl;
+        }
+
+        if(c.getDataType() == opendlv::proxy::Accumulator::ID()){
+           auto accumulatorReadings = c.getData<opendlv::proxy::Accumulator>(); 
+           const uint16_t SoC = accumulatorReadings.getSoC();
+           const uint16_t accTemp = accumulatorReadings.getTemp();
+
+           std::cout << "Accumulator SoC: " << SoC << std::endl;
+           std::cout << "Accumulator Temp: " << accTemp << std::endl;
+        }
 
       if(c.getDataType() == opendlv::proxy::WaterTemperature::ID()){
 
@@ -311,9 +358,9 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
         const uint8_t wTemp2 = waterTemp.getTemp2();
         const uint8_t wTemp3 = waterTemp.getTemp3();
 
-        std::cout << "Temp after motor left: " << wTemp1 << std::endl;
-        std::cout << "Temp after pump: " << wTemp2 << std::endl;  
-        std::cout << "Temp after pump right: " << wTemp3 << std::endl;
+        std::cout << "Temp after motor left: " << static_cast<int>(wTemp1) << std::endl;
+        std::cout << "Temp after pump: " << static_cast<int>(wTemp2) << std::endl;  
+        std::cout << "Temp after pump right: " << static_cast<int>(wTemp3) << std::endl;
       }
     }
 
@@ -363,13 +410,13 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
 
             //KNOB MESSAGE TEMPORARILY CONESHAPE FOR TESTING
 
-            opendlv::system::SignalStatusMessage signalStatus;
+            /*opendlv::system::SignalStatusMessage signalStatus;
             signalStatus.setCode(2); //or something..
 
             odcore::data::Container signalContainer(signalStatus);
             canmapping::opendlv::system::SignalStatusMessage signalMapping;
             automotive::GenericCANMessage genericCanMessage = signalMapping.encode(signalContainer);
-            m_device->write(genericCanMessage);
+            m_device->write(genericCanMessage);*/
             /*
 
             //Update values depending on timestamps
