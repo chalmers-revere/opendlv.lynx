@@ -303,9 +303,9 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
           const uint8_t GBTempLeft = sensor2Readings.getGearBoxTempLeft();
           const uint8_t GBTempRight = sensor2Readings.getGearBoxTempRight();
 
-          std::cout << "Rotor ambient temperature: " << RATempLeft << " : " << RATempRight << std::endl;
-          std::cout << "Rotor object temperature: " << ROTempLeft << " : " << ROTempRight << std::endl;
-          std::cout << "Gearbox temperature: " << GBTempLeft << " : " << GBTempRight << std::endl; 
+          std::cout << "Rotor ambient temperature: " << static_cast<int>(RATempLeft) << " : " << static_cast<int>(RATempRight) << std::endl;
+          std::cout << "Rotor object temperature: " << static_cast<int>(ROTempLeft) << " : " << static_cast<int>(ROTempRight) << std::endl;
+          std::cout << "Gearbox temperature: " << static_cast<int>(GBTempLeft) << " : " << static_cast<int>(GBTempRight) << std::endl; 
 
         }
         if(c.getDataType() == opendlv::proxy::HeartBeatNodeTwo::ID()){
