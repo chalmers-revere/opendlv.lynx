@@ -245,18 +245,18 @@ void Can::setUpRecordingGenericCANMessage(const string &timeStampForFileName) {
 
 void Can::nextContainer(Container &a_container) {
 
-  //praktiskt exempel
+  //Get groundspeed request from path planning
 
-    /*if (a_container.getDataType() == opendlv::proxy::GroundspeedReadníng::ID()) {
-        auto groundspeedReading = a_container.getData<opendlv::proxy::GroundspeedReadníng>();
-        if (actuationRequest.getIsValid()) {
+    /*if (a_container.getDataType() == opendlv::proxy::GroundSpeedRequest::ID()) {
+        auto groundspeedRequest = a_container.getData<opendlv::proxy::GroundSpeedRequest>();
+
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_groundspeed = groundSpeedReading.getGroundspeed();
+            m_requests.m_groundspeed = groundSpeedRequest.getGroundSpeed();
             
             }
-        }
     }*/
+
   a_container = a_container;
 
 }
@@ -280,7 +280,7 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
             m_fifoMappedCanMessages.add(c);
         }*/
 
-        getConference().send(c);
+        //getConference().send(c);
 
         // Generate GroundSpeedReading message
         /*if (c.getDataType() == opendlv::proxy::GroundSpeedReading::ID()) {
@@ -302,6 +302,18 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
 
         std::cout << "knobber 1: " << knob1 << " knobber 2: " << knob2 << std::endl;
 
+      }
+
+      if(c.getDataType() == opendlv::proxy::WaterTemperature::ID()){
+
+        auto waterTemp = c.getData<opendlv::proxy::WaterTemperature>();
+        const uint8_t wTemp1 = waterTemp.getTemp1(); 
+        const uint8_t wTemp2 = waterTemp.getTemp2();
+        const uint8_t wTemp3 = waterTemp.getTemp3();
+
+        std::cout << "Temp after motor left: " << wTemp1 << std::endl;
+        std::cout << "Temp after pump: " << wTemp2 << std::endl;  
+        std::cout << "Temp after pump right: " << wTemp3 << std::endl;
       }
     }
 
@@ -372,11 +384,11 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
 
 
 
-            /*
+            
 
-            //exempler forts
+            //Set and send groundspeed request
               
-             {
+             /*{
                 opendlv::proxy::GroundSpeedRequest groundspeedRequest;
                 groundSpeedRequest.setGroundspeed(m_request.m_groundspeed);
                 odcore::data::Containter groundspeedContainer(groundspeedRequest);
@@ -384,8 +396,7 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
                 automotive::GenericCANMessage genericCANmessageGroundspeed = groundspeedMapping.encode(groundspeedContainer);
                 m_device->write(genericCANmessageGroundspeed);
 
-
-             } */
+             }*/
         }
     }
 

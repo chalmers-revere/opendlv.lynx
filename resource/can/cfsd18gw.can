@@ -19,6 +19,15 @@ CAN Message 0xc3 NF_DL_Buttons_RTD is 4 bytes {
     Buttons at bit 0 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
 }
 
+// Can Message For WaterTemp
+CAN Message 0xb3 NR_DL_Sensors_3 is 7 bytes {
+    Water_Temp_3 at bit 48 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,200.0];
+    Water_Temp_2 at bit 40 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,200.0];
+    Water_Temp_1 at bit 32 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,200.0];
+    Acceleration_Y at bit 16 for 16 bit is signed little endian multiply by 0.01 add 0.0 with range [-327.68,327.67];
+    Acceleration_X at bit 0 for 16 bit is signed little endian multiply by 0.01 add 0.0 with range [-327.68,327.67];
+}
+
 mapping opendlv.system.SignalStatusMessage {
     BMS_DL_Data.Accumulator_SoC : 1;
 
@@ -27,4 +36,10 @@ mapping opendlv.system.SignalStatusMessage {
 mapping opendlv.coord.ConeShape {
     NF_DL_Buttons_RTD.Knob_R : 1;
     NF_DL_Buttons_RTD.Knob_L : 2;
+}
+
+mapping opendlv.proxy.WaterTemperature {
+    NR_DL_Sensors_3.Water_Temp_1 : 1;
+    NR_DL_Sensors_3.Water_Temp_2 : 2;
+    NR_DL_Sensors_3.Water_Temp_3 : 3;
 }
