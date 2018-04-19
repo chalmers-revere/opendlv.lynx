@@ -48,14 +48,17 @@ void BicycleModel::nextContainer(odcore::data::Container &a_container)
     odcore::base::Lock l(m_groundAccelerationMutex);
     auto groundDeceleration = a_container.getData<opendlv::proxy::GroundDecelerationRequest>();
     m_groundAcceleration = -groundDeceleration.getGroundDeceleration();
+    std::cout<<"GroundAcceleration recieved = "<<m_groundAcceleration<<"\n";
   } else if (a_container.getDataType() == opendlv::proxy::GroundAccelerationRequest::ID()) {
     odcore::base::Lock l(m_groundAccelerationMutex);
     auto groundAcceleration = a_container.getData<opendlv::proxy::GroundAccelerationRequest>();
     m_groundAcceleration = groundAcceleration.getGroundAcceleration();
+    std::cout<<"GroundAcceleration recieved = "<<m_groundAcceleration<<"\n";
   } else if (a_container.getDataType() == opendlv::proxy::GroundSteeringRequest::ID()) {
     odcore::base::Lock m(m_groundSteeringAngleMutex);
     auto groundSteeringAngle = a_container.getData<opendlv::proxy::GroundSteeringRequest>();
     m_groundSteeringAngle = groundSteeringAngle.getGroundSteering();
+    std::cout<<"groundSteeringAngle recieved = "<<m_groundSteeringAngle<<"\n";
   }
 }
 
@@ -77,12 +80,16 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
 
   double const dt = 1.0 / static_cast<double>(getFrequency());
 
-  double longitudinalSpeed{0.0};
+  double longitudinalSpeed{0.01};
   double lateralSpeed{0.0};
   double yawRate{0.0};
-
   while (getModuleStateAndWaitForRemainingTimeInTimeslice() == odcore::data::dmcp::ModuleStateMessage::RUNNING) {
-    
+
+    // TODO: Is this really what we want? The vehicle can never reverse or stop. (initialize longitudinalSpeed to 0.01 instead)
+    /*if (longitudinalSpeed < 0.0001) {
+      longitudinalSpeed = 0.01;
+    }*/
+
     double groundAccelerationCopy;
     double groundSteeringAngleCopy;
     {
@@ -105,16 +112,19 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
     double forceRearY = magicFormula(slipAngleRear, forceRearZ,
         frictionCoefficient, magicFormulaCAlpha, magicFormulaC, magicFormulaE);
 
-    double longitudinalSpeedDot = groundAccelerationCopy -
-      forceFrontY * std::sin(groundSteeringAngleCopy) / mass +
-      yawRate * lateralSpeed;
+    double rollResistance;
+    if (longitudinalSpeed>0) {rollResistance = -9.81*0.02;}
+    else if (longitudinalSpeed<0){rollResistance = 9.81*0.02;}
+    else {rollResistance = 0.0;}
+
+    double longitudinalSpeedDot = groundAccelerationCopy - std::sin(groundSteeringAngleCopy)*forceFrontY/mass + yawRate * lateralSpeed + rollResistance;
 
     double lateralSpeedDot =
       (forceFrontY * std::cos(groundSteeringAngleCopy) + forceRearY) / mass -
-      yawRate * lateralSpeed;
+      yawRate * longitudinalSpeed;
 
-    double yawRateDot = (length * forceFrontY *
-        std::cos(groundSteeringAngleCopy) - frontToCog * forceRearY) /
+    double yawRateDot = (frontToCog * forceFrontY *
+        std::cos(groundSteeringAngleCopy) - rearToCog * forceRearY) /
       momentOfInertiaZ;
 
     longitudinalSpeed += longitudinalSpeedDot * dt;
@@ -125,9 +135,19 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
     kinematicState.setVx(longitudinalSpeed);
     kinematicState.setVy(lateralSpeed);
     kinematicState.setYawRate(yawRate);
+    kinematicState.setVz(0.0);
+    kinematicState.setRollRate(0.0);
+    kinematicState.setPitchRate(0.0);
 
     odcore::data::Container c(kinematicState);
     getConference().send(c);
+
+    float groundSpeed = static_cast<float>(sqrt(pow(longitudinalSpeed,2)+pow(lateralSpeed,2)));
+    if (longitudinalSpeed<0) {groundSpeed=-groundSpeed;}
+    opendlv::proxy::GroundSpeedReading groundSpeedReading;
+    groundSpeedReading.setGroundSpeed(groundSpeed);
+    odcore::data::Container c1(groundSpeedReading);
+    getConference().send(c1);
   }
 
   return odcore::data::dmcp::ModuleExitCodeMessage::OKAY;
