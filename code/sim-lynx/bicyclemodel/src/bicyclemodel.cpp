@@ -85,11 +85,6 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
   double yawRate{0.0};
   while (getModuleStateAndWaitForRemainingTimeInTimeslice() == odcore::data::dmcp::ModuleStateMessage::RUNNING) {
 
-    // TODO: Is this really what we want? The vehicle can never reverse or stop. (initialize longitudinalSpeed to 0.01 instead)
-    /*if (longitudinalSpeed < 0.0001) {
-      longitudinalSpeed = 0.01;
-    }*/
-
     double groundAccelerationCopy;
     double groundSteeringAngleCopy;
     {
@@ -128,6 +123,9 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
       momentOfInertiaZ;
 
     longitudinalSpeed += longitudinalSpeedDot * dt;
+    if (longitudinalSpeed<0) {
+      longitudinalSpeed = 0.01;
+    }
     lateralSpeed += lateralSpeedDot * dt;
     yawRate += yawRateDot * dt;
 
@@ -143,7 +141,6 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
     getConference().send(c);
 
     float groundSpeed = static_cast<float>(sqrt(pow(longitudinalSpeed,2)+pow(lateralSpeed,2)));
-    if (longitudinalSpeed<0) {groundSpeed=-groundSpeed;}
     opendlv::proxy::GroundSpeedReading groundSpeedReading;
     groundSpeedReading.setGroundSpeed(groundSpeed);
     odcore::data::Container c1(groundSpeedReading);
