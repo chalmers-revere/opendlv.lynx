@@ -42,13 +42,14 @@ class BicycleModel : public odcore::base::module::TimeTriggeredConferenceClientM
   void setUp();
   void tearDown();
   odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode body();
-  double magicFormula(double const &, double const &, double const &, 
+  double magicFormula(double const &, double const &, double const &,
       double const &, double const &, double const &) const;
 
   odcore::base::Mutex m_groundAccelerationMutex;
   odcore::base::Mutex m_groundSteeringAngleMutex;
   double m_groundAcceleration;
   double m_groundSteeringAngle;
+  //bool m_newAcc;
 };
 
 }

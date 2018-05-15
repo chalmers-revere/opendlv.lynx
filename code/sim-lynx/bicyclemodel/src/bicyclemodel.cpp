@@ -18,6 +18,7 @@
 */
 
 #include <iostream>
+#include <fstream>
 
 #include <opendavinci/odcore/data/TimeStamp.h>
 #include <opendavinci/odcore/strings/StringToolbox.h>
@@ -34,6 +35,7 @@ BicycleModel::BicycleModel(int32_t const &a_argc, char **a_argv) :
   m_groundSteeringAngleMutex{},
   m_groundAcceleration{0.0},
   m_groundSteeringAngle{0.0}
+  //,m_newAcc{false}
 {
 }
 
@@ -48,17 +50,19 @@ void BicycleModel::nextContainer(odcore::data::Container &a_container)
     odcore::base::Lock l(m_groundAccelerationMutex);
     auto groundDeceleration = a_container.getData<opendlv::proxy::GroundDecelerationRequest>();
     m_groundAcceleration = -groundDeceleration.getGroundDeceleration();
-    std::cout<<"GroundAcceleration recieved = "<<m_groundAcceleration<<"\n";
+    //std::cout<<"GroundAcceleration recieved = "<<m_groundAcceleration<<"\n";
+    //m_newAcc = true;
   } else if (a_container.getDataType() == opendlv::proxy::GroundAccelerationRequest::ID()) {
     odcore::base::Lock l(m_groundAccelerationMutex);
     auto groundAcceleration = a_container.getData<opendlv::proxy::GroundAccelerationRequest>();
     m_groundAcceleration = groundAcceleration.getGroundAcceleration();
-    std::cout<<"GroundAcceleration recieved = "<<m_groundAcceleration<<"\n";
+    //std::cout<<"GroundAcceleration recieved = "<<m_groundAcceleration<<"\n";
+    //m_newAcc = true;
   } else if (a_container.getDataType() == opendlv::proxy::GroundSteeringRequest::ID()) {
     odcore::base::Lock m(m_groundSteeringAngleMutex);
     auto groundSteeringAngle = a_container.getData<opendlv::proxy::GroundSteeringRequest>();
     m_groundSteeringAngle = groundSteeringAngle.getGroundSteering();
-    std::cout<<"groundSteeringAngle recieved = "<<m_groundSteeringAngle<<"\n";
+    //std::cout<<"groundSteeringAngle recieved = "<<m_groundSteeringAngle<<"\n";
   }
 }
 
@@ -77,12 +81,18 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
   double const magicFormulaCAlpha = kv.getValue<double>("sim-lynx-bicyclemodel.magicFormulaCAlpha");
   double const magicFormulaC = kv.getValue<double>("sim-lynx-bicyclemodel.magicFormulaC");
   double const magicFormulaE = kv.getValue<double>("sim-lynx-bicyclemodel.magicFormulaE");
-
+  std::string const filename = kv.getValue<std::string>("sim-lynx-bicyclemodel.filename");
   double const dt = 1.0 / static_cast<double>(getFrequency());
 
   double longitudinalSpeed{0.01};
+  double longitudinalSpeedDot{0.0};
   double lateralSpeed{0.0};
   double yawRate{0.0};
+  /*double const kp = 2.0;
+  double const kd = 0.0;
+  double const ki = 0.01;
+  double e, ed, ei;
+  double ePrev = 0.0;*/
   while (getModuleStateAndWaitForRemainingTimeInTimeslice() == odcore::data::dmcp::ModuleStateMessage::RUNNING) {
 
     double groundAccelerationCopy;
@@ -93,6 +103,31 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
       groundAccelerationCopy = m_groundAcceleration;
       groundSteeringAngleCopy = m_groundSteeringAngle;
     }
+    /*if (//m_newAcc) {
+      ei = 0.0;
+      ePrev = 0.0;
+      //m_newAcc = false;
+    }
+    e = groundAccelerationCopy-longitudinalSpeedDot;
+    ei += e*dt;
+    ed = (e-ePrev)/dt;
+    double acceleration = kp*e+kd*ed+ki*ei;
+    std::cout<<"groundAccelerationCopy: "<<groundAccelerationCopy<<endl;
+    std::cout<<"longitudinalSpeedDot: "<<longitudinalSpeedDot<<endl;
+    std::cout<<"ACCELERATION: "<<acceleration<<endl;
+    std::cout<<"e: "<<e<<endl;
+    std::cout<<"ePrev: "<<ePrev<<endl;
+    std::cout<<"dt: "<<dt<<endl;
+    std::cout<<"ed: "<<ed<<endl;
+    std::cout<<"ei: "<<ei<<endl;
+    std::cout<<"kp*e: "<<kp*e<<endl;
+    std::cout<<"kd*ed: "<<kd*ed<<endl;
+    std::cout<<"ki*ei: "<<ki*ei<<endl;
+    if (acceleration > 5.0) {
+      acceleration = 5.0;
+    }else if(acceleration < -5.0){
+      acceleration = -5.0;
+    }*/
 
     double slipAngleFront = groundSteeringAngleCopy - std::atan(
         (lateralSpeed + frontToCog * yawRate) / std::abs(longitudinalSpeed));
@@ -112,7 +147,7 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
     else if (longitudinalSpeed<0){rollResistance = 9.81*0.02;}
     else {rollResistance = 0.0;}
 
-    double longitudinalSpeedDot = groundAccelerationCopy - std::sin(groundSteeringAngleCopy)*forceFrontY/mass + yawRate * lateralSpeed + rollResistance;
+    longitudinalSpeedDot = groundAccelerationCopy - std::sin(groundSteeringAngleCopy)*forceFrontY/mass + yawRate * lateralSpeed + rollResistance;
 
     double lateralSpeedDot =
       (forceFrontY * std::cos(groundSteeringAngleCopy) + forceRearY) / mass -
@@ -128,6 +163,8 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
     }
     lateralSpeed += lateralSpeedDot * dt;
     yawRate += yawRateDot * dt;
+
+    //ePrev = e;
 
     opendlv::sim::KinematicState kinematicState;
     kinematicState.setVx(longitudinalSpeed);
@@ -145,6 +182,13 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
     groundSpeedReading.setGroundSpeed(groundSpeed);
     odcore::data::Container c1(groundSpeedReading);
     getConference().send(c1);
+
+
+    std::ofstream speedFile;
+    speedFile.open("/opt/opendlv.data/"+filename,std::ios_base::app);
+    speedFile<<longitudinalSpeed<<","<<lateralSpeed<<","<<yawRate<<","<<groundAccelerationCopy<<","<<longitudinalSpeedDot<<","<<lateralSpeedDot<<","<<yawRateDot<<std::endl;
+    speedFile.close();
+
   }
 
   return odcore::data::dmcp::ModuleExitCodeMessage::OKAY;
