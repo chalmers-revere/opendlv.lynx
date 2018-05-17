@@ -81,7 +81,6 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
   double const magicFormulaCAlpha = kv.getValue<double>("sim-lynx-bicyclemodel.magicFormulaCAlpha");
   double const magicFormulaC = kv.getValue<double>("sim-lynx-bicyclemodel.magicFormulaC");
   double const magicFormulaE = kv.getValue<double>("sim-lynx-bicyclemodel.magicFormulaE");
-  std::string const filename = kv.getValue<std::string>("sim-lynx-bicyclemodel.filename");
   double const dt = 1.0 / static_cast<double>(getFrequency());
 
   double longitudinalSpeed{0.01};
@@ -177,17 +176,22 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
     odcore::data::Container c(kinematicState);
     getConference().send(c);
 
+    opendlv::logic::sensation::Equilibrioception eq;
+    eq.setVx(longitudinalSpeed);
+    eq.setVy(lateralSpeed);
+    eq.setYawRate(yawRate);
+    eq.setVz(longitudinalSpeedDot);
+    eq.setRollRate(lateralSpeedDot);
+    eq.setPitchRate(yawRateDot);
+    odcore::data::Container c2(eq);
+    getConference().send(c2);
+
+
     float groundSpeed = static_cast<float>(sqrt(pow(longitudinalSpeed,2)+pow(lateralSpeed,2)));
     opendlv::proxy::GroundSpeedReading groundSpeedReading;
     groundSpeedReading.setGroundSpeed(groundSpeed);
     odcore::data::Container c1(groundSpeedReading);
     getConference().send(c1);
-
-
-    std::ofstream speedFile;
-    speedFile.open("/opt/opendlv.data/"+filename,std::ios_base::app);
-    speedFile<<longitudinalSpeed<<","<<lateralSpeed<<","<<yawRate<<","<<groundAccelerationCopy<<","<<longitudinalSpeedDot<<","<<lateralSpeedDot<<","<<yawRateDot<<std::endl;
-    speedFile.close();
 
   }
 
