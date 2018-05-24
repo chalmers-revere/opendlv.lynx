@@ -87,6 +87,7 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
   double longitudinalSpeedDot{0.0};
   double lateralSpeed{0.0};
   double yawRate{0.0};
+  double prevSteerAngle{0.0};
   /*double const kp = 2.0;
   double const kd = 0.0;
   double const ki = 0.01;
@@ -102,6 +103,17 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
       groundAccelerationCopy = m_groundAcceleration;
       groundSteeringAngleCopy = m_groundSteeringAngle;
     }
+
+    if (std::abs(groundSteeringAngleCopy-prevSteerAngle)/dt>(80.0*3.14159265/180.0)){
+      if (groundSteeringAngleCopy > prevSteerAngle) {
+        groundSteeringAngleCopy = dt*80.0*3.14159265/180.0 + prevSteerAngle;
+      }
+      else{
+        groundSteeringAngleCopy = -dt*80.0*3.14159265/180.0 + prevSteerAngle;
+      }
+    }
+    //std::cout<<"grounSteering: "<<groundSteeringAngleCopy<<std::endl;
+
     /*if (//m_newAcc) {
       ei = 0.0;
       ePrev = 0.0;
@@ -164,6 +176,7 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode BicycleModel::body()
     yawRate += yawRateDot * dt;
 
     //ePrev = e;
+    prevSteerAngle = groundSteeringAngleCopy;
 
     opendlv::sim::KinematicState kinematicState;
     kinematicState.setVx(longitudinalSpeed);
