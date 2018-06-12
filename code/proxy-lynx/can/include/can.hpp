@@ -79,6 +79,14 @@ class Can : public odcore::base::module::TimeTriggeredConferenceClientModule,
             float m_acceleration;
             float m_steering;
             float m_groundspeed;
+            uint8_t m_pressureEbsAct;
+            uint8_t m_pressureEbsLine;
+            uint8_t m_pressureEbsServ;
+            uint8_t m_pressureEbsReg;
+            uint8_t m_positionRack;
+            uint8_t m_positionAct;
+            uint8_t m_asRtd;
+            uint8_t m_asState;
             odcore::data::TimeStamp m_lastUpdate;
     };
 

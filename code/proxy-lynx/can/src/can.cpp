@@ -62,6 +62,14 @@ Can::Requests::Requests()
     , m_acceleration(0.0f)
     , m_steering(0.0f)
     , m_groundspeed(0.0f)
+    , m_pressureEbsAct()
+    , m_pressureEbsLine()
+    , m_pressureEbsServ()
+    , m_pressureEbsReg()
+    , m_positionRack()
+    , m_positionAct()
+    , m_asRtd()
+    , m_asState()
     , m_lastUpdate()
 {}
 
@@ -247,18 +255,39 @@ void Can::nextContainer(Container &a_container) {
 
   //Get groundspeed request from path planning
 
-    /*if (a_container.getDataType() == opendlv::proxy::GroundSpeedRequest::ID()) {
-        auto groundspeedRequest = a_container.getData<opendlv::proxy::GroundSpeedRequest>();
-
+    if (a_container.getDataType() == opendlv::proxy::GroundSteeringReading::ID()) {
+        auto groundspeedReading = a_container.getData<opendlv::proxy::GroundSteeringReading>();
+        if (a_container.getSenderStamp() == 1200){ // Steering actuator reading
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_groundspeed = groundSpeedRequest.getGroundSpeed();
-            
-            }
-    }*/
+            m_requests.m_positionAct = (uint8_t) ((groundspeedReading.getGroundSteering()+25)*5);
+        }else if (a_container.getSenderStamp() == 1206){ // Steering rack reading
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
+            m_requests.m_positionRack = (uint8_t) ((groundspeedReading.getGroundSteering()+25)*5);
+        }
+    }
 
-  a_container = a_container;
-
+    if (a_container.getDataType() == opendlv::proxy::PressureReading::ID()) {
+        auto pressureReading = a_container.getData<opendlv::proxy::PressureReading>();
+        if (a_container.getSenderStamp() == 1201){ // EBS Line
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
+            m_requests.m_pressureEbsLine = (uint8_t) (pressureReading.getPressure()*20);
+        }else if (a_container.getSenderStamp() == 1202){ // Service tank
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
+            m_requests.m_pressureEbsServ = (uint8_t) (pressureReading.getPressure()*20);
+        }else if (a_container.getSenderStamp() == 1203){ // EBS Act
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
+            m_requests.m_pressureEbsAct = (uint8_t) (pressureReading.getPressure()*20);
+        }else if (a_container.getSenderStamp() == 1205){ // Service regulator
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
+            m_requests.m_pressureEbsReg = (uint8_t) (pressureReading.getPressure()*20);
+        }
+    }
 }
 
 void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
@@ -294,76 +323,22 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
           Container groundSpeedReadingContainer = Container(groundSpeedReading);
           getConference().send(groundSpeedReadingContainer);
         }*/
-        if(c.getDataType() == opendlv::proxy::SensorTwoTemps::ID()){
-          auto sensor2Readings = c.getData<opendlv::proxy::SensorTwoTemps>();
-          const uint8_t RATempLeft = sensor2Readings.getRotorAmbientTempLeft();
-          const uint8_t RATempRight = sensor2Readings.getRotorAmbientTempRight();
-          const uint8_t ROTempLeft = sensor2Readings.getRotorObjectTempLeft();
-          const uint8_t ROTempRight = sensor2Readings.getRotorObjectTempRight();
-          const uint8_t GBTempLeft = sensor2Readings.getGearBoxTempLeft();
-          const uint8_t GBTempRight = sensor2Readings.getGearBoxTempRight();
+        if(c.getDataType() == opendlv::proxy::CarStatus::ID()){
+          auto CarStatus = c.getData<opendlv::proxy::CarStatus>();
+          const uint8_t Acc_SoC = CarStatus.getAccSoc();
+          const uint8_t Brake_Rear = CarStatus.getBrakeRear();
+          const uint8_t Brake_Front = CarStatus.getBrakeFront();
+          const uint8_t DL_Status = CarStatus.getDlStatus();
+          const uint8_t AS_Mission = CarStatus.getAsMission();
 
-          std::cout << "Rotor ambient temperature: " << static_cast<int>(RATempLeft) << " : " << static_cast<int>(RATempRight) << std::endl;
-          std::cout << "Rotor object temperature: " << static_cast<int>(ROTempLeft) << " : " << static_cast<int>(ROTempRight) << std::endl;
-          std::cout << "Gearbox temperature: " << static_cast<int>(GBTempLeft) << " : " << static_cast<int>(GBTempRight) << std::endl; 
+
+          std::cout << "SoC: " << static_cast<int>(Acc_SoC) << std::endl;
+          std::cout << "Brake_Pressure: " << static_cast<int>(Brake_Front) << " : " << static_cast<int>(Brake_Rear) << std::endl;
+          std::cout << "DL Status: " << static_cast<int>(DL_Status) << std::endl; 
+          std::cout << "AS Mission: " << static_cast<int>(AS_Mission) << std::endl; 
 
         }
-        if(c.getDataType() == opendlv::proxy::HeartBeatNodeTwo::ID()){
-
-          auto node2Reading = c.getData<opendlv::proxy::HeartBeatNodeTwo>();
-          const uint8_t node2 = node2Reading.getStatus();
-
-          std::cout << "Node 2 status: " << static_cast<int>(node2) << std::endl;
-        }
-        if(c.getDataType() == opendlv::proxy::FrontWheelVelocity::ID()){
-          auto frontWheelVel = c.getData<opendlv::proxy::FrontWheelVelocity>();
-          const uint16_t left = frontWheelVel.getFrontLeft();
-          const uint16_t right = frontWheelVel.getFrontRight();
-          const uint16_t frontAvgSpeed = (left + right)/2;
-          std::cout << "Avarage front wheel speed: " << frontAvgSpeed << std::endl;
-        }
-        if(c.getDataType() == opendlv::proxy::BrakePressure::ID()){
-          auto breakpressureReading = c.getData<opendlv::proxy::BrakePressure>();
-          const uint8_t brakepressure = breakpressureReading.getBrakePressure();
-
-          std::cout << "Brake pressure: " << static_cast<int>(brakepressure) << std::endl;
-        }
-        if(c.getDataType() == opendlv::proxy::HeartBeatNodeOne::ID()){
-
-          auto node1Reading = c.getData<opendlv::proxy::HeartBeatNodeOne>();
-          const uint8_t node1 = node1Reading.getStatus();
-
-          std::cout << "Node 1 status: " << static_cast<int>(node1) << std::endl;
-        }
-
-        if(c.getDataType() == opendlv::proxy::HeartBeatBMS::ID()) {
-          auto BMSReading = c.getData<opendlv::proxy::HeartBeatBMS>();
-          const uint8_t status = BMSReading.getStatusBMS();
-          std::cout << "BMS Status: " << static_cast<int>(status) << std::endl;
-        }
-
-        if(c.getDataType() == opendlv::proxy::Accumulator::ID()){
-           auto accumulatorReadings = c.getData<opendlv::proxy::Accumulator>(); 
-           const uint16_t SoC = accumulatorReadings.getSoC();
-           const uint16_t accTemp = accumulatorReadings.getTemp();
-
-           std::cout << "Accumulator SoC: " << SoC << std::endl;
-           std::cout << "Accumulator Temp: " << accTemp << std::endl;
-        }
-
-      if(c.getDataType() == opendlv::proxy::WaterTemperature::ID()){
-
-        auto waterTemp = c.getData<opendlv::proxy::WaterTemperature>();
-        const uint8_t wTemp1 = waterTemp.getTemp1(); 
-        const uint8_t wTemp2 = waterTemp.getTemp2();
-        const uint8_t wTemp3 = waterTemp.getTemp3();
-
-        std::cout << "Temp after motor left: " << static_cast<int>(wTemp1) << std::endl;
-        std::cout << "Temp after pump: " << static_cast<int>(wTemp2) << std::endl;  
-        std::cout << "Temp after pump right: " << static_cast<int>(wTemp3) << std::endl;
-      }
     }
-
     // Enqueue CAN message wrapped as Container to be recorded if we have a valid recorder.
     /*if (m_recorderGenericCanMessages.get()) {
         Container c(gcm);
@@ -430,20 +405,25 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
             }*/
 
 
-
-            
-
-            //Set and send groundspeed request
+           //Set and send sensors readings to car
               
-             /*{
-                opendlv::proxy::GroundSpeedRequest groundspeedRequest;
-                groundSpeedRequest.setGroundspeed(m_request.m_groundspeed);
-                odcore::data::Containter groundspeedContainer(groundspeedRequest);
-                canmapping::opendlv::proxy::GroundSpeedRequest groundspeedMapping;
-                automotive::GenericCANMessage genericCANmessageGroundspeed = groundspeedMapping.encode(groundspeedContainer);
-                m_device->write(genericCANmessageGroundspeed);
+             {
+                opendlv::proxy::AsSensors asSensors;
+                asSensors.setAsRtd(m_requests.m_asRtd);
+                asSensors.setSteering_Position(m_requests.m_positionAct);
+                asSensors.setRack_Position(m_requests.m_positionRack);
+                asSensors.setPressure_Service(m_requests.m_pressureEbsServ);
+                asSensors.setPressure_Regulator(m_requests.m_pressureEbsReg);
+                asSensors.setPressure_EBS_Line(m_requests.m_pressureEbsLine);
+                asSensors.setPressure_EBS_Act(m_requests.m_pressureEbsAct);
+                asSensors.setAsState(m_requests.m_asState);
 
-             }*/
+                odcore::data::Container asSensorsContainer(asSensors);
+                canmapping::opendlv::proxy::AsSensors asSensorsMapping;
+                automotive::GenericCANMessage genericCANmessageAsSensors = asSensorsMapping.encode(asSensorsContainer);
+                m_device->write(genericCANmessageAsSensors);
+
+             }
         }
     }
 
