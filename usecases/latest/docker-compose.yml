@@ -25,11 +25,11 @@ services:
         network_mode: "host"
         volumes:
         - .:/opt/opendlv.data
-        command: "/opt/od4/bin/odsupercomponent --cid=221 --verbose=1 --configuration=/opt/opendlv.data/configuration"
+        command: "/opt/od4/bin/odsupercomponent --cid=219 --verbose=1 --configuration=/opt/opendlv.data/configuration"
     proxy-lynx-can:
         image: seresearch/opendlv-lynx-on-opendlv-on-opendlv-core-on-opendavinci-on-base-dev
         privileged: true    #writing to /sys/
         network_mode: "host"
         depends_on:
             - odsupercomponent
-        command: "/opt/opendlv.lynx/bin/opendlv-proxy-lynx-can --cid=221 --freq=10 --id=1"
+        command: "/opt/opendlv.lynx/bin/opendlv-proxy-lynx-can --cid=219 --freq=10 --id=1"

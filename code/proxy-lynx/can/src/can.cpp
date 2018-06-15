@@ -70,6 +70,8 @@ Can::Requests::Requests()
     , m_positionAct()
     , m_asRtd()
     , m_asState()
+    , m_asTorqueSetPointRight()
+    , m_asTorqueSetPointLeft()
     , m_lastUpdate()
 {}
 
@@ -288,6 +290,32 @@ void Can::nextContainer(Container &a_container) {
             m_requests.m_pressureEbsReg = (uint8_t) (pressureReading.getPressure()*20);
         }
     }
+
+    if (a_container.getDataType() == opendlv::proxy::SwitchStateReading::ID()) {
+        auto stateReading = a_container.getData<opendlv::proxy::SwitchStateReading>();
+        if (a_container.getSenderStamp() == 1401){ // Current state
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
+            m_requests.m_asState = (uint8_t) stateReading.getState();
+        }else if (a_container.getSenderStamp() == 1404){ // RTD
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
+            m_requests.m_asRtd = (uint8_t) stateReading.getState();
+        }
+    }
+
+    if (a_container.getDataType() == opendlv::proxy::TorqueRequest::ID()) {
+        auto torqueReq = a_container.getData<opendlv::proxy::TorqueRequest>();
+        if (a_container.getSenderStamp() == 1501){ // Right motor
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
+            m_requests.m_asTorqueSetPointRight = (int16_t) torqueReq.getTorque();
+        }else if (a_container.getSenderStamp() == 1500){ // Left motor
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
+            m_requests.m_asTorqueSetPointLeft = (int16_t) torqueReq.getTorque();
+        }
+    }
 }
 
 void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
@@ -424,6 +452,19 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
                 m_device->write(genericCANmessageAsSensors);
 
              }
+
+            {
+                opendlv::proxy::AsTorque asTorque;
+                asTorque.setTorqueSetPointRight(m_requests.m_asTorqueSetPointRight);
+                asTorque.setTorqueSetPointLeft(m_requests.m_asTorqueSetPointLeft);
+
+                odcore::data::Container asTorqueContainer(asTorque);
+                canmapping::opendlv::proxy::AsTorque asTorqueMapping;
+                automotive::GenericCANMessage genericCANmessageAsTorque = asTorqueMapping.encode(asTorqueContainer);
+                m_device->write(genericCANmessageAsTorque);
+
+             }
+             
         }
     }
 

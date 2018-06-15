@@ -47,6 +47,9 @@ message opendlv.proxy.GroundSteeringReading [id = 1045] {
 message opendlv.proxy.SwitchStateRequest [id = 1085] {
   int16 state [id = 1];
 }
+message opendlv.proxy.TorqueRequest [id = 1082] {
+ float torque [id = 1];
+}
 
 message opendlv.proxy.AsTorque [id = 1055] {
     int16 TorqueSetPointRight [id = 1];
