@@ -70,6 +70,7 @@ Can::Requests::Requests()
     , m_positionAct()
     , m_asRtd()
     , m_asState()
+    , m_ebsFault()
     , m_asTorqueSetPointRight()
     , m_asTorqueSetPointLeft()
     , m_lastUpdate()
@@ -301,6 +302,10 @@ void Can::nextContainer(Container &a_container) {
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
             m_requests.m_asRtd = (uint8_t) stateReading.getState();
+        }else if (a_container.getSenderStamp() == 1405){ // EBS Fault
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
+            m_requests.m_ebsFault = (uint8_t) stateReading.getState();
         }
     }
 
@@ -457,7 +462,8 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
                 opendlv::proxy::AsTorque asTorque;
                 asTorque.setTorqueSetPointRight(m_requests.m_asTorqueSetPointRight);
                 asTorque.setTorqueSetPointLeft(m_requests.m_asTorqueSetPointLeft);
-
+                asTorque.setEbsFault(m_requests.m_ebsFault);
+                
                 odcore::data::Container asTorqueContainer(asTorque);
                 canmapping::opendlv::proxy::AsTorque asTorqueMapping;
                 automotive::GenericCANMessage genericCANmessageAsTorque = asTorqueMapping.encode(asTorqueContainer);

@@ -54,6 +54,7 @@ message opendlv.proxy.TorqueRequest [id = 1082] {
 message opendlv.proxy.AsTorque [id = 1055] {
     int16 TorqueSetPointRight [id = 1];
     int16 TorqueSetPointLeft [id = 2];
+    uint8 EbsFault [id = 3];
 }
 message opendlv.proxy.AsSensors [id = 1056] {
     uint8 AsRtd [id = 1];

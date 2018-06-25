@@ -87,6 +87,7 @@ class Can : public odcore::base::module::TimeTriggeredConferenceClientModule,
             uint8_t m_positionAct;
             uint8_t m_asRtd;
             uint8_t m_asState;
+            uint8_t m_ebsFault;
             int16_t m_asTorqueSetPointRight;
             int16_t m_asTorqueSetPointLeft;
             odcore::data::TimeStamp m_lastUpdate;

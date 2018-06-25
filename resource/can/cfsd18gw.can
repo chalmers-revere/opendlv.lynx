@@ -7,6 +7,7 @@ using ODVDcfsd18;
 CAN Message 0xe1 AS_Torque_Req is 8 bytes {
     Torque_Set_Point_Right at bit 16 for 16 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
     Torque_Set_Point_Left at bit 0 for 16 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    EbsFault at bit 32 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
 }
 
 CAN Message 0xe2 AS_DL_Sensors is 8 bytes {
@@ -32,6 +33,7 @@ CAN Message 0xd4 DL_AS_Status is 8 bytes {
 mapping opendlv.proxy.AsTorque {
     AS_Torque_Req.Torque_Set_Point_Right : 1;
     AS_Torque_Req.Torque_Set_Point_Left : 2;
+    AS_Torque_Req.EbsFault : 3;
 }
 mapping opendlv.proxy.AsSensors {
     AS_DL_Sensors.AS_RTD : 1;
