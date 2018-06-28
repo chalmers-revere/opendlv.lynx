@@ -44,6 +44,10 @@ message opendlv.proxy.GroundSteeringReading [id = 1045] {
   float groundSteering [id = 1];
 }
 
+message opendlv.proxy.GroundSpeedReading [id = 1046] {
+  float groundSpeed [id = 1];
+}
+
 message opendlv.proxy.SwitchStateRequest [id = 1085] {
   int16 state [id = 1];
 }

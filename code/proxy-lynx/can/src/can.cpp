@@ -358,17 +358,31 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
         }*/
         if(c.getDataType() == opendlv::proxy::CarStatus::ID()){
           auto CarStatus = c.getData<opendlv::proxy::CarStatus>();
-          const uint8_t Acc_SoC = CarStatus.getAccSoc();
+          //const uint8_t Acc_SoC = CarStatus.getAccSoc();
           const uint8_t Brake_Rear = CarStatus.getBrakeRear();
           const uint8_t Brake_Front = CarStatus.getBrakeFront();
-          const uint8_t DL_Status = CarStatus.getDlStatus();
-          const uint8_t AS_Mission = CarStatus.getAsMission();
+          //const uint8_t DL_Status = CarStatus.getDlStatus();
+          //const uint8_t AS_Mission = CarStatus.getAsMission();
+		
+  	  const double groundSpeedLeft = ((double) Brake_Rear) / 3.6;
+	  const double groundSpeedRight = ((double) Brake_Front) / 3.6;
+
+	  opendlv::proxy::GroundSpeedReading groundSpeedReading;
+          groundSpeedReading.setGroundSpeed(groundSpeedLeft);
+          Container groundSpeedReadingContainer = Container(groundSpeedReading);
+	  groundSpeedReadingContainer.setSenderStamp(1504);
+          getConference().send(groundSpeedReadingContainer);
+
+          groundSpeedReading.setGroundSpeed(groundSpeedRight);
+          Container groundSpeedReadingContainer2 = Container(groundSpeedReading);
+	  groundSpeedReadingContainer2.setSenderStamp(1504);
+          getConference().send(groundSpeedReadingContainer2);
 
 
-          std::cout << "SoC: " << static_cast<int>(Acc_SoC) << std::endl;
-          std::cout << "Brake_Pressure: " << static_cast<int>(Brake_Front) << " : " << static_cast<int>(Brake_Rear) << std::endl;
-          std::cout << "DL Status: " << static_cast<int>(DL_Status) << std::endl; 
-          std::cout << "AS Mission: " << static_cast<int>(AS_Mission) << std::endl; 
+          //std::cout << "SoC: " << static_cast<int>(Acc_SoC) << std::endl;
+          //std::cout << "Brake_Pressure: " << static_cast<int>(Brake_Front) << " : " << static_cast<int>(Brake_Rear) << std::endl;
+          //std::cout << "DL Status: " << static_cast<int>(DL_Status) << std::endl; 
+          //std::cout << "AS Mission: " << static_cast<int>(AS_Mission) << std::endl; 
 
         }
     }
