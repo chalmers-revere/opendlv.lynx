@@ -375,7 +375,7 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
 
           groundSpeedReading.setGroundSpeed(groundSpeedRight);
           Container groundSpeedReadingContainer2 = Container(groundSpeedReading);
-	  groundSpeedReadingContainer2.setSenderStamp(1504);
+	  groundSpeedReadingContainer2.setSenderStamp(1505);
           getConference().send(groundSpeedReadingContainer2);
 
 
