@@ -362,10 +362,16 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
           const uint8_t Brake_Rear = CarStatus.getBrakeRear();
           const uint8_t Brake_Front = CarStatus.getBrakeFront();
           //const uint8_t DL_Status = CarStatus.getDlStatus();
-          //const uint8_t AS_Mission = CarStatus.getAsMission();
+          const uint8_t AS_Mission = CarStatus.getAsMission();
 		
   	  const double groundSpeedLeft = ((double) Brake_Rear) / 3.6;
 	  const double groundSpeedRight = ((double) Brake_Front) / 3.6;
+
+	  opendlv::proxy::SwitchStateReading switchStateReading;
+          switchStateReading.setState(AS_Mission);
+          Container switchStateReadingContainer = Container(switchStateReading);
+	  switchStateReadingContainer.setSenderStamp(1406);
+          getConference().send(switchStateReadingContainer);
 
 	  opendlv::proxy::GroundSpeedReading groundSpeedReading;
           groundSpeedReading.setGroundSpeed(groundSpeedLeft);
