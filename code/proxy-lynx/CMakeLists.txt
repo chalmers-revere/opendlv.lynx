@@ -48,6 +48,7 @@ set(LIBRARIES
 
 ### MICROSERVICE BEGIN ###
 add_subdirectory(can)
+add_subdirectory(can-res)
 ### MICROSERVICE END ###
 
 set(CHANGELOG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../ChangeLog")

@@ -1,7 +1,7 @@
 
 
 
-
+proxy-lynx-can-res.devicenode = can1
 proxy-lynx-can.devicenode = can0
 proxy-lynx-can.record_mapped_data = 1 
 proxy-lynx-can.enableActuationBrake = 1 #Bool

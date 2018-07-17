@@ -95,11 +95,38 @@ ExternalProject_Add(libcfsd18gw
     TEST_BEFORE_INSTALL 1
 INSTALL_COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/libcfsd18gw-prefix/src/libcfsd18gw-build --target install COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/libcfsd18gw-prefix/src/libcfsd18gw-build --target ${MAKE_PACKAGE})
 
-
 message(STATUS "BUILD OF GW COMPLETE")
+
+# This "external project" simply deletes the existing libcfsd18gw.
+ExternalProject_Add(libcfsd18resgw-cleanup
+    DOWNLOAD_COMMAND ""
+    UPDATE_COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/libcfsd18gw
+    PATCH_COMMAND ""
+    SOURCE_DIR ""
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    TEST_COMMAND ""
+    INSTALL_COMMAND "")
+
+message(STATUS "DELETION OF RES GW COMPLETE")
+# This "external project" builds libcfsd18resgw.
+ExternalProject_Add(libcfsd18resgw
+    DEPENDS libcfsd18resgw-cleanup libodvdcfsd18
+    DOWNLOAD_COMMAND ""
+    UPDATE_COMMAND cd ${CMAKE_CURRENT_BINARY_DIR} && ${Java_JAVA_EXECUTABLE} -jar ${ODCANDATASTRUCTUREGENERATOR_EXECUTABLE} --withCMake ${CMAKE_SOURCE_DIR}/resource/can/cfsd18resgw.can
+    PATCH_COMMAND ""
+    SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libcfsd18resgw"
+    CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
+    CMAKE_ARGS "-DOPENDAVINCI_DIR=${OPENDAVINCI_DIR}"
+    CMAKE_ARGS "-DCXXTEST_INCLUDE_DIR=${CXXTEST_INCLUDE_DIR}"
+    TEST_BEFORE_INSTALL 1
+INSTALL_COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/libcfsd18resgw-prefix/src/libcfsd18resgw-build --target install COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/libcfsd18resgw-prefix/src/libcfsd18resgw-build --target ${MAKE_PACKAGE})
+
+message(STATUS "BUILD OF RES GW COMPLETE")
+
 ### NAMESPACE BEGIN ###
 ExternalProject_Add (proxy-lynx
-  DEPENDS libodvdcfsd18 libcfsd18gw
+  DEPENDS libodvdcfsd18 libcfsd18gw libcfsd18resgw
   DOWNLOAD_COMMAND ""
   UPDATE_COMMAND ""
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/code/proxy-lynx"

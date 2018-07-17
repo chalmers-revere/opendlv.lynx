@@ -1,0 +1,88 @@
+
+using AutomotiveData;
+using ODVDcfsd18;
+
+CAN Message 0x191 PDO_RES_Status is 8 bytes {
+    RES_Status at bit 56 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,255.0];
+    RES_E_Stop at bit 24 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,255.0];
+    RES_Quality at bit 48 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,255.0];
+    RES_Buttons at bit 0 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,255.0];
+}
+CAN Message 0x0 NMT_Node_Control is 2 bytes {
+    Node_State at bit 0 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,255.0];
+    Node_Id at bit 8 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,255.0];
+}
+CAN Message 0x511 AS_EBS_Supervision is 8 bytes {
+    AS_Pr_Service at bit 24 for 8 bit is unsigned little endian multiply by 10.0 add 0.0 with range [0.0,0.0];
+    AS_Pr_Regulator at bit 32 for 8 bit is unsigned little endian multiply by 10.0 add 0.0 with range [0.0,0.0];
+    AS_Pr_EBS_Line at bit 16 for 8 bit is unsigned little endian multiply by 10.0 add 0.0 with range [0.0,0.0];
+    AS_Pr_EBS_Act at bit 8 for 8 bit is unsigned little endian multiply by 10.0 add 0.0 with range [0.0,0.0];
+    AS_DO_EBS_Heartbeat at bit 0 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+}
+CAN Message 0x502 DV_system_status is 5 bytes {
+    Steering_state at bit 8 for 1 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,1.0];
+    Service_brake_state at bit 9 for 2 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,3.0];
+    Lap_counter at bit 11 for 4 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,15.0];
+    EBS_state at bit 3 for 2 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,3.0];
+    Cones_count_all at bit 23 for 17 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,131071.0];
+    Cones_count_actual at bit 15 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,255.0];
+    ASSI_state at bit 0 for 3 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,7.0];
+    AMI_state at bit 5 for 3 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,7.0];
+}
+CAN Message 0x501 DV_driving_dynamics_2 is 6 bytes {
+    Yaw_rate at bit 32 for 16 bit is signed little endian multiply by 0.0078125 add 0.0 with range [0.0,0.0];
+    Acceleration_longitudinal at bit 0 for 16 bit is signed little endian multiply by 0.001953125 add 0.0 with range [0.0,0.0];
+    Acceleration_lateral at bit 16 for 16 bit is signed little endian multiply by 0.001953125 add 0.0 with range [0.0,0.0];
+}
+CAN Message 0x500 DV_driving_dynamics_1 is 8 bytes {
+    Steering_angle_target at bit 24 for 8 bit is signed little endian multiply by 0.5 add 0.0 with range [0.0,0.0];
+    Steering_angle_actual at bit 16 for 8 bit is signed little endian multiply by 0.5 add 0.0 with range [0.0,0.0];
+    Speed_target at bit 8 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    Speed_actual at bit 0 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    Motor_moment_target at bit 56 for 8 bit is signed little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    Motor_moment_actual at bit 48 for 8 bit is signed little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    Brake_hydr_target at bit 40 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    Brake_hydr_actual at bit 32 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+}
+mapping opendlv.proxy.PdoResStatus {
+    PDO_RES_Status.RES_Status : 1;
+    PDO_RES_Status.RES_E_Stop : 2;
+    PDO_RES_Status.RES_Quality : 3;
+    PDO_RES_Status.RES_Buttons : 4;
+}
+mapping opendlv.proxy.NmtNodeControl {
+    NMT_Node_Control.Node_State : 1;
+    NMT_Node_Control.Node_Id : 2;
+}
+mapping opendlv.proxy.AsEbsSupervision {
+    AS_EBS_Supervision.AS_Pr_Service : 1;
+    AS_EBS_Supervision.AS_Pr_Regulator : 2;
+    AS_EBS_Supervision.AS_Pr_EBS_Line : 3;
+    AS_EBS_Supervision.AS_Pr_EBS_Act : 4;
+    AS_EBS_Supervision.AS_DO_EBS_Heartbeat : 5;
+}
+mapping opendlv.proxy.DvSystemStatus {
+    DV_system_status.Steering_state : 1;
+    DV_system_status.Service_brake_state : 2;
+    DV_system_status.Lap_counter : 3;
+    DV_system_status.EBS_state : 4;
+    DV_system_status.Cones_count_all : 5;
+    DV_system_status.Cones_count_actual : 6;
+    DV_system_status.ASSI_state : 7;
+    DV_system_status.AMI_state : 8;
+}
+mapping opendlv.proxy.DvDrivingDynamics2 {
+    DV_driving_dynamics_2.Yaw_rate : 1;
+    DV_driving_dynamics_2.Acceleration_longitudinal : 2;
+    DV_driving_dynamics_2.Acceleration_lateral : 3;
+}
+mapping opendlv.proxy.DvDrivingDynamics1 {
+    DV_driving_dynamics_1.Steering_angle_target : 1;
+    DV_driving_dynamics_1.Steering_angle_actual : 2;
+    DV_driving_dynamics_1.Speed_target : 3;
+    DV_driving_dynamics_1.Speed_actual : 4;
+    DV_driving_dynamics_1.Motor_moment_target : 5;
+    DV_driving_dynamics_1.Motor_moment_actual : 6;
+    DV_driving_dynamics_1.Brake_hydr_target : 7;
+    DV_driving_dynamics_1.Brake_hydr_actual : 8;
+}
