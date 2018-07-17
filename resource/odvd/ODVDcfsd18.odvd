@@ -70,7 +70,6 @@ message opendlv.proxy.AsSensors [id = 1056] {
     uint8 Pressure_EBS_Act [id = 7];
     uint8 AsState [id = 8];
 }
-
 message opendlv.proxy.CarStatus [id = 1057] {
     uint8 AccSoc [id = 1];
     uint8 BrakeRear [id = 2];
@@ -78,4 +77,45 @@ message opendlv.proxy.CarStatus [id = 1057] {
     uint8 DlStatus [id = 4];
     uint8 AsMission [id = 5];
 }
-
+message opendlv.proxy.PdoResStatus [id = 1058] {
+    uint8 ResStatus [id = 1];
+    uint8 ResEStop [id = 2];
+    uint8 ResQuality [id = 3];
+    uint8 ResButtons [id = 4];
+}
+message opendlv.proxy.NmtNodeControl [id = 1059] {
+    uint8 NodeState [id = 1];
+    uint8 NodeId [id = 2];
+}
+message opendlv.proxy.AsEbsSupervision [id = 1060] {
+    uint8 AsPrService [id = 1];
+    uint8 AsPrRegulator [id = 2];
+    uint8 AsPrEbsLine [id = 3];
+    uint8 AsPrEbsAct [id = 4];
+    uint8 AsDoEbsHeartbeat [id = 5];
+}
+message opendlv.proxy.DvSystemStatus [id = 1061] {
+    bool SteeringState [id = 1];
+    uint8 ServiceBrakeState [id = 2];
+    uint8 LapCounter [id = 3];
+    uint8 EbsState [id = 4];
+    uint8 ConesCountAll [id = 5];
+    uint32 ConesCountActual [id = 6];
+    uint8 AssiState [id = 7];
+    uint8 AmiState [id = 8];
+}
+message opendlv.proxy.DvDrivingDynamics2 [id = 1062] {
+    int16 YawRate [id = 1];
+    int16 AccLong [id = 2];
+    int16 AccLat [id = 3];
+}
+message opendlv.proxy.DvDrivingDynamics1 [id = 1063] {
+    int8 SteeringAngleTarget [id = 1];
+    int8 SteeringAngleActual [id = 2];
+    uint8 SpeedTarget [id = 3];
+    uint8 SpeedActual [id = 4];
+    int8 MotorMomentTarget [id = 5];
+    int8 MotorMomentActual [id = 6];
+    uint8 BrakeHydrTarget [id = 7];
+    uint8 BrakeHydrActual [id = 8];
+}

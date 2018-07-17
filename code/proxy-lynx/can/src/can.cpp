@@ -106,45 +106,6 @@ void Can::setUp() {
     if (m_device.get() && m_device->isOpen()) {
         cout << "[" << getName() << "]: " << "Successfully opened CAN device '" << DEVICE_NODE << "'." << endl;
 
-        // Automatically record all received raw CAN messages.
-       /* m_startOfRecording = TimeStamp();
-        const string TIMESTAMP = m_startOfRecording.getYYYYMMDD_HHMMSS_noBlankNoColons();
-
-        const bool RECORD_GCM = (getKeyValueConfiguration().getValue< int >("proxy-lynx-can.record_gcm") == 1);
-        if (RECORD_GCM) {
-            setUpRecordingGenericCANMessage(TIMESTAMP);
-        }
-
-        const bool RECORD_MAPPED = (getKeyValueConfiguration().getValue< int >("proxy-lynx-can.record_mapped_data") == 1);
-        if (RECORD_MAPPED) {
-            setUpRecordingMappedGenericCANMessage(TIMESTAMP);
-        }
-
-        bool valueFound = false;
-        m_requests.m_enableActuationBrake = getKeyValueConfiguration().getOptionalValue<bool>("proxy-lynx-can.enableActuationBrake", valueFound);
-        if (!valueFound) {
-          m_requests.m_enableActuationBrake = false;
-        }
-        if (!m_requests.m_enableActuationBrake) {
-          std::cout << "The brakes are not enabled for control." << std::endl;
-        }
-
-        m_requests.m_enableActuationSteering = getKeyValueConfiguration().getOptionalValue<bool>("proxy-lynx-can.enableActuationSteering", valueFound);
-        if (!valueFound) {
-          m_requests.m_enableActuationSteering = false;
-        }
-        if (!m_requests.m_enableActuationSteering) {
-          std::cout << "The steering is not enabled for control." << std::endl;
-        }
-
-        m_requests.m_enableActuationThrottle = getKeyValueConfiguration().getOptionalValue<bool>("proxy-lynx-can.enableActuationThrottle", valueFound);
-        if (!valueFound) {
-          m_requests.m_enableActuationThrottle = false;
-        }
-        if (!m_requests.m_enableActuationThrottle) {
-          std::cout << "The throttle is not enabled for control." << std::endl;
-        }*/
-
         // Start the wrapped CAN device to receive CAN messages concurrently.
         m_device->start();
     } else {
@@ -157,102 +118,7 @@ void Can::tearDown() {
     if (m_device.get()) {
         m_device->stop();
     }
-
-    // Flush output to CSV files.
-    /*for (auto it = m_mapOfCSVFiles.begin(); it != m_mapOfCSVFiles.end(); it++) {
-        it->second->flush();
-        it->second->close();
-    }
-
-    // Flush output to ASC file.
-    if (m_ASCfile.get() != NULL) {
-        m_ASCfile->flush();
-        m_ASCfile->close();
-    }*/
 }
-
-/*void Can::setUpRecordingMappedGenericCANMessage(const string &timeStampForFileName) {
-    // URL for storing containers containing GenericCANMessages.
-    stringstream recordingUrl;
-    recordingUrl << "file://"
-                 << "CID-" << getCID() << "_"
-                 << "can_mapped_data_" << timeStampForFileName << ".rec";
-
-    // Size of memory segments (not needed for recording GenericCANMessages).
-    const uint32_t MEMORY_SEGMENT_SIZE = 0;
-
-    // Number of memory segments (not needed for recording GenericCANMessages).
-    const uint32_t NUMBER_OF_SEGMENTS = 0;
-
-    // Run recorder in asynchronous mode to allow real-time recording in background.
-    const bool THREADING = true;
-
-    // Dump shared images and shared data (not needed for recording mapped containers)?
-    const bool DUMP_SHARED_DATA = false;
-
-    // Create a recorder instance.
-    m_recorderMappedCanMessages = unique_ptr< Recorder >(new Recorder(recordingUrl.str(), MEMORY_SEGMENT_SIZE, NUMBER_OF_SEGMENTS, THREADING, DUMP_SHARED_DATA));
-
-    {
-
-        {
-            stringstream fileName;
-            fileName << "CID-" << getCID() << "_"
-                     << "can_mapped_data_id-" << opendlv::proxy::GroundSteeringReading::ID() << "_" << timeStampForFileName << ".csv";
-
-            // Create map of CSV transformers.
-            fstream *f = new fstream(fileName.str(), ios::out);
-
-            // Log Steering.
-            m_mapOfCSVFiles[opendlv::proxy::GroundSteeringReading::ID()] = shared_ptr< fstream >(f);
-            m_mapOfCSVVisitors[opendlv::proxy::GroundSteeringReading::ID()] = shared_ptr< CSVFromVisitableVisitor >(new CSVFromVisitableVisitor(*f));
-        }
-
-        {
-            stringstream fileName;
-            fileName << "CID-" << getCID() << "_"
-                     << "can_mapped_data_id-" << opendlv::proxy::GroundSpeedReading::ID() << "_" << timeStampForFileName << ".csv";
-
-            // Create map of CSV transformers.
-            fstream *f = new fstream(fileName.str(), ios::out);
-
-            // Log Propulsion.
-            m_mapOfCSVFiles[opendlv::proxy::GroundSpeedReading::ID()] = shared_ptr< fstream >(f);
-            m_mapOfCSVVisitors[opendlv::proxy::GroundSpeedReading::ID()] = shared_ptr< CSVFromVisitableVisitor >(new CSVFromVisitableVisitor(*f));
-        }
-    }
-}
-
-void Can::setUpRecordingGenericCANMessage(const string &timeStampForFileName) {
-    // URL for storing containers containing GenericCANMessages.
-    stringstream recordingUrl;
-    recordingUrl << "file://"
-                 << "CID-" << getCID() << "_"
-                 << "can_gcm_" << timeStampForFileName << ".rec";
-
-    // Size of memory segments (not needed for recording GenericCANMessages).
-    const uint32_t MEMORY_SEGMENT_SIZE = 0;
-
-    // Number of memory segments (not needed for recording GenericCANMessages).
-    const uint32_t NUMBER_OF_SEGMENTS = 0;
-
-    // Run recorder in asynchronous mode to allow real-time recording in background.
-    const bool THREADING = true;
-
-    // Dump shared images and shared data (not needed for recording GenericCANMessages)?
-    const bool DUMP_SHARED_DATA = false;
-
-    // Create a recorder instance.
-    m_recorderGenericCanMessages = unique_ptr< Recorder >(new Recorder(recordingUrl.str(),
-    MEMORY_SEGMENT_SIZE, NUMBER_OF_SEGMENTS, THREADING, DUMP_SHARED_DATA));
-
-    // Create a file to dump CAN data in ASC format.
-    stringstream fileName;
-    fileName << "CID-" << getCID() << "_"
-             << "can_data_" << timeStampForFileName << ".asc";
-    m_ASCfile = shared_ptr< fstream >(new fstream(fileName.str(), ios::out));
-    (*m_ASCfile) << "Time (s) Channel ID RX/TX d Length Byte 1 Byte 2 Byte 3 Byte 4 Byte 5 Byte 6 Byte 7 Byte 8" << endl;
-}*/
 
 void Can::nextContainer(Container &a_container) {
 
@@ -337,52 +203,37 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
         c.setSentTimeStamp(gcm.getDriverTimeStamp());
         c.setReceivedTimeStamp(gcm.getDriverTimeStamp());
 
-        // Enqueue mapped container for direct recording.
-        /*if (m_recorderMappedCanMessages.get()) {
-            m_fifoMappedCanMessages.add(c);
-        }*/
-
-        //getConference().send(c);
-
-        // Generate GroundSpeedReading message
-        /*if (c.getDataType() == opendlv::proxy::GroundSpeedReading::ID()) {
-          auto propulsion = c.getData<opendlv::proxy::GroundSpeedReading>();
-          const double groundSpeedKph = static_cast<double>(propulsion.getPropulsionShaftVehicleSpeed());
-          const double groundSpeed = groundSpeedKph / 3.6;
-
-          opendlv::proxy::GroundSpeedReading groundSpeedReading;
-          groundSpeedReading.setGroundSpeed(groundSpeed);
-
-          Container groundSpeedReadingContainer = Container(groundSpeedReading);
-          getConference().send(groundSpeedReadingContainer);
-        }*/
-        if(c.getDataType() == opendlv::proxy::CarStatus::ID()){
-          auto CarStatus = c.getData<opendlv::proxy::CarStatus>();
-          //const uint8_t Acc_SoC = CarStatus.getAccSoc();
-          const uint8_t Brake_Rear = CarStatus.getBrakeRear();
-          const uint8_t Brake_Front = CarStatus.getBrakeFront();
-          //const uint8_t DL_Status = CarStatus.getDlStatus();
-          const uint8_t AS_Mission = CarStatus.getAsMission();
-		
-  	  const double groundSpeedLeft = ((double) Brake_Rear) / 3.6;
-	  const double groundSpeedRight = ((double) Brake_Front) / 3.6;
-
-	  opendlv::proxy::SwitchStateReading switchStateReading;
-          switchStateReading.setState(AS_Mission);
-          Container switchStateReadingContainer = Container(switchStateReading);
-	  switchStateReadingContainer.setSenderStamp(1406);
-          getConference().send(switchStateReadingContainer);
-
-	  opendlv::proxy::GroundSpeedReading groundSpeedReading;
-          groundSpeedReading.setGroundSpeed(groundSpeedLeft);
-          Container groundSpeedReadingContainer = Container(groundSpeedReading);
-	  groundSpeedReadingContainer.setSenderStamp(1504);
-          getConference().send(groundSpeedReadingContainer);
-
-          groundSpeedReading.setGroundSpeed(groundSpeedRight);
-          Container groundSpeedReadingContainer2 = Container(groundSpeedReading);
-	  groundSpeedReadingContainer2.setSenderStamp(1505);
-          getConference().send(groundSpeedReadingContainer2);
+        if(c.getDataType() == opendlv::proxy::PdoResStatus::ID()){
+            auto ResStatus = c.getData<opendlv::proxy::PdoResStatus>();
+            const uint8_t resStatus = ResStatus.getResStatus();
+            const uint8_t resEStop = ResStatus.getResEStop();
+            const uint8_t resQuality = ResStatus.getResQuality();
+            const uint8_t resButtons = ResStatus.getResButtons();
+        {
+	        opendlv::proxy::SwitchStateReading switchStateReading;
+            switchStateReading.setState(resStatus);
+            Container switchStateReadingContainer = Container(switchStateReading);
+            switchStateReadingContainer.setSenderStamp(1407);
+            getConference().send(switchStateReadingContainer);
+        }{
+	        opendlv::proxy::SwitchStateReading switchStateReading;
+            switchStateReading.setState(resEStop);
+            Container switchStateReadingContainer = Container(switchStateReading);
+            switchStateReadingContainer.setSenderStamp(1408);
+            getConference().send(switchStateReadingContainer);
+        }{
+	        opendlv::proxy::SwitchStateReading switchStateReading;
+            switchStateReading.setState(resQuality);
+            Container switchStateReadingContainer = Container(switchStateReading);
+            switchStateReadingContainer.setSenderStamp(1409);
+            getConference().send(switchStateReadingContainer);
+        }{
+	        opendlv::proxy::SwitchStateReading switchStateReading;
+            switchStateReading.setState(resButtons);
+            Container switchStateReadingContainer = Container(switchStateReading);
+            switchStateReadingContainer.setSenderStamp(1410);
+            getConference().send(switchStateReadingContainer);
+        }
 
 
           //std::cout << "SoC: " << static_cast<int>(Acc_SoC) << std::endl;
@@ -392,162 +243,33 @@ void Can::nextGenericCANMessage(const automotive::GenericCANMessage &gcm)
 
         }
     }
-    // Enqueue CAN message wrapped as Container to be recorded if we have a valid recorder.
-    /*if (m_recorderGenericCanMessages.get()) {
-        Container c(gcm);
-        c.setSampleTimeStamp(gcm.getDriverTimeStamp());
-        c.setSentTimeStamp(gcm.getDriverTimeStamp());
-        c.setReceivedTimeStamp(gcm.getDriverTimeStamp());
-        m_fifoGenericCanMessages.add(c);
-    }*/
 }
 
 odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode Can::body() {
     while (getModuleStateAndWaitForRemainingTimeInTimeslice() == odcore::data::dmcp::ModuleStateMessage::RUNNING) {
-        // Record GenericCANMessages.
-        /*if (m_recorderGenericCanMessages.get()) {
-            const uint32_t ENTRIES = m_fifoGenericCanMessages.getSize();
-            for (uint32_t i = 0; i < ENTRIES; i++) {
-                Container c = m_fifoGenericCanMessages.leave();
-
-                // Store container to dump file.
-                m_recorderGenericCanMessages->store(c);
-            }
-        }
-
-        // Record mapped messages from GenericCANMessages.
-        if (m_recorderMappedCanMessages.get()) {
-            const uint32_t ENTRIES = m_fifoMappedCanMessages.getSize();
-            for (uint32_t i = 0; i < ENTRIES; i++) {
-                Container c = m_fifoMappedCanMessages.leave();
-
-                // Store container to dump file.
-                m_recorderMappedCanMessages->store(c);
-
-                // Transform container to CSV file.
-                dumpCSVData(c);
-            }
-        }*/
 
         // Write values to CAN.
         {
             odcore::base::Lock l(m_requests.m_mutex);
             odcore::data::TimeStamp now;
 
-            //
+            {   //Set and send sensors readings to car
+                opendlv::proxy::NmtNodeControl nmtNodeControl;
+                nmtNodeControl.setNodeState(1);
+                nmtNodeControl.setNodeId(0);
+    
+                odcore::data::Container nmtNodeControlContainer(nmtNodeControl);
+                canmapping::opendlv::proxy::NmtNodeControl nmtNodeControlMapping;
+                automotive::GenericCANMessage genericCANmessageNmtNodeControl = nmtNodeControlMapping.encode(nmtNodeControlContainer);
+                m_device->write(genericCANmessageNmtNodeControl);
 
-            //KNOB MESSAGE TEMPORARILY CONESHAPE FOR TESTING
-
-            /*opendlv::system::SignalStatusMessage signalStatus;
-            signalStatus.setCode(2); //or something..
-
-            odcore::data::Container signalContainer(signalStatus);
-            canmapping::opendlv::system::SignalStatusMessage signalMapping;
-            automotive::GenericCANMessage genericCanMessage = signalMapping.encode(signalContainer);
-            m_device->write(genericCanMessage);*/
-            /*
-
-            //Update values depending on timestamps
-            const int64_t ONE_SECOND = 1 * 1000 * 1000;
-            const bool TIMEOUT = !(abs((now - m_requests.m_lastUpdate).toMicroseconds()) < ONE_SECOND);
-            if (!TIMEOUT) {
-                // Updates for actuation values received, prepare values to be sent.
-                brakeRequestValue = (m_requests.m_acceleration < 0.0f) ? m_requests.m_acceleration : 0.0f;
-                throttleRequestValue = (!(m_requests.m_acceleration < 0.0f)) ? m_requests.m_acceleration : 0.0f;
-                steeringRequestValue = m_requests.m_steering;
-            }*/
-
-
-           //Set and send sensors readings to car
-              
-             {
-                opendlv::proxy::AsSensors asSensors;
-                asSensors.setAsRtd(m_requests.m_asRtd);
-                asSensors.setSteering_Position(m_requests.m_positionAct);
-                asSensors.setRack_Position(m_requests.m_positionRack);
-                asSensors.setPressure_Service(m_requests.m_pressureEbsServ);
-                asSensors.setPressure_Regulator(m_requests.m_pressureEbsReg);
-                asSensors.setPressure_EBS_Line(m_requests.m_pressureEbsLine);
-                asSensors.setPressure_EBS_Act(m_requests.m_pressureEbsAct);
-                asSensors.setAsState(m_requests.m_asState);
-
-                odcore::data::Container asSensorsContainer(asSensors);
-                canmapping::opendlv::proxy::AsSensors asSensorsMapping;
-                automotive::GenericCANMessage genericCANmessageAsSensors = asSensorsMapping.encode(asSensorsContainer);
-                m_device->write(genericCANmessageAsSensors);
-
-             }
-
-            {
-                opendlv::proxy::AsTorque asTorque;
-                asTorque.setTorqueSetPointRight(m_requests.m_asTorqueSetPointRight);
-                asTorque.setTorqueSetPointLeft(m_requests.m_asTorqueSetPointLeft);
-                asTorque.setEbsFault(m_requests.m_ebsFault);
-                
-                odcore::data::Container asTorqueContainer(asTorque);
-                canmapping::opendlv::proxy::AsTorque asTorqueMapping;
-                automotive::GenericCANMessage genericCANmessageAsTorque = asTorqueMapping.encode(asTorqueContainer);
-                m_device->write(genericCANmessageAsTorque);
-
-             }
+            }
              
         }
     }
 
     return odcore::data::dmcp::ModuleExitCodeMessage::OKAY;
 }
-
-/*void Can::dumpCSVData(Container &c) {
-    // Add time stamps for CSV output.
-    const uint64_t receivedFromCAN = c.getReceivedTimeStamp().toMicroseconds();
-
-    shared_ptr< Field< uint64_t > > m_receivedTS_ptr = shared_ptr< Field< uint64_t > >(new Field< uint64_t >(receivedFromCAN));
-    m_receivedTS_ptr->setFieldIdentifier(0);
-    m_receivedTS_ptr->setLongFieldName("Received_TimeStamp");
-    m_receivedTS_ptr->setShortFieldName("Received_TimeStamp");
-    m_receivedTS_ptr->setFieldDataType(reflection::AbstractField::UINT64_T);
-    m_receivedTS_ptr->setSize(sizeof(uint64_t));
-
-    if ((m_mapOfCSVFiles.count(c.getDataType()) == 1) &&
-        (m_mapOfCSVVisitors.count(c.getDataType()) == 1)) {
-        // We have a CSV file and a transformation available.
-        if (c.getDataType() == opendlv::proxy::GroundSpeedReading::ID()) {
-            opendlv::proxy::GroundSpeedReading temp = c.getData< opendlv::proxy::GroundSpeedReading >();
-            MessageFromVisitableVisitor mfvv;
-            temp.accept(mfvv);
-            Message m = mfvv.getMessage();
-            m.addField(m_receivedTS_ptr);
-            m.accept(*m_mapOfCSVVisitors[c.getDataType()]);
-        }
-        if (c.getDataType() == opendlv::proxy::GroundSteeringReading::ID()) {
-            opendlv::proxy::rhino::Propulsion temp = c.getData< opendlv::proxy::rhino::Propulsion >();
-            MessageFromVisitableVisitor mfvv;
-            temp.accept(mfvv);
-            Message m = mfvv.getMessage();
-            m.addField(m_receivedTS_ptr);
-            m.accept(*m_mapOfCSVVisitors[c.getDataType()]);
-        }
-    }
-}
-
-void Can::dumpASCData(const automotive::GenericCANMessage &gcm) {
-    if (m_ASCfile.get() != NULL) {
-        TimeStamp now;
-        TimeStamp ts = (now - m_startOfRecording);
-        (*m_ASCfile) << (ts.getSeconds() + (static_cast< double >(ts.getFractionalMicroseconds()) / (1000.0 * 1000.0)))
-                     << " 1"
-                     << " " << gcm.getIdentifier()
-                     << " Rx"
-                     << " d"
-                     << " " << static_cast< uint32_t >(gcm.getLength());
-        uint64_t data = gcm.getData();
-        for (uint8_t i = 0; i < gcm.getLength(); i++) {
-            (*m_ASCfile) << " " << hex << (data & 0xFF);
-            data = data >> 8;
-        }
-        (*m_ASCfile) << endl;
-    }
-}*/
 
 }
 }
