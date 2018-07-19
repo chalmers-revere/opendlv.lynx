@@ -161,19 +161,19 @@ void CanRes::nextContainer(Container &a_container) {
         if (a_container.getSenderStamp() == 1201){ // EBS Line
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_asPrEbsLine = (uint8_t) (pressureReading.getPressure()*10);
+            m_requests.m_asPrEbsLine = (uint8_t) (pressureReading.getPressure()*20);
         }else if (a_container.getSenderStamp() == 1202){ // Service tank
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_asPrService = (uint8_t) (pressureReading.getPressure()*10);
+            m_requests.m_asPrService = (uint8_t) (pressureReading.getPressure()*20);
         }else if (a_container.getSenderStamp() == 1203){ // EBS Act
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_asPrEbsAct = (uint8_t) (pressureReading.getPressure()*10);
+            m_requests.m_asPrEbsAct = (uint8_t) (pressureReading.getPressure()*20);
         }else if (a_container.getSenderStamp() == 1205){ // Service regulator
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_asPrRegulator = (uint8_t) (pressureReading.getPressure()*10);
+            m_requests.m_asPrRegulator = (uint8_t) (pressureReading.getPressure()*20);
         }
     }
 

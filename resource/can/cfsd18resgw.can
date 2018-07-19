@@ -13,10 +13,10 @@ CAN Message 0x0 NMT_Node_Control is 2 bytes {
     Node_Id at bit 8 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,255.0];
 }
 CAN Message 0x511 AS_EBS_Supervision is 8 bytes {
-    AS_Pr_Service at bit 24 for 8 bit is unsigned little endian multiply by 10.0 add 0.0 with range [0.0,0.0];
-    AS_Pr_Regulator at bit 32 for 8 bit is unsigned little endian multiply by 10.0 add 0.0 with range [0.0,0.0];
-    AS_Pr_EBS_Line at bit 16 for 8 bit is unsigned little endian multiply by 10.0 add 0.0 with range [0.0,0.0];
-    AS_Pr_EBS_Act at bit 8 for 8 bit is unsigned little endian multiply by 10.0 add 0.0 with range [0.0,0.0];
+    AS_Pr_Service at bit 24 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    AS_Pr_Regulator at bit 32 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    AS_Pr_EBS_Line at bit 16 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
+    AS_Pr_EBS_Act at bit 8 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
     AS_DO_EBS_Heartbeat at bit 0 for 8 bit is unsigned little endian multiply by 1.0 add 0.0 with range [0.0,0.0];
 }
 CAN Message 0x502 DV_system_status is 5 bytes {
