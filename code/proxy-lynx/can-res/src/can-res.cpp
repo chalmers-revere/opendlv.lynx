@@ -73,6 +73,33 @@ CanRes::Requests::Requests()
     , m_ebsFault()
     , m_asTorqueSetPointRight()
     , m_asTorqueSetPointLeft()
+    , m_asPrService()
+    , m_asPrRegulator()
+    , m_asPrEbsLine()
+    , m_asPrEbsAct()
+    , m_asDoEbsHeartbeat(1)
+    //
+    , m_steeringState(1)
+    , m_serviceBrakeState(2)
+    , m_lapCounter(12)
+    , m_ebsState(2)
+    , m_conesCountAll(1023)
+    , m_conesCountActual(78)
+    , m_assiState()
+    , m_amiState()
+    //
+    , m_yawRate(4)
+    , m_accLong(5)
+    , m_accLat(6)
+    //
+    , m_steeringAngleTarget(3)
+    , m_steeringAngleActual(4)
+    , m_speedTarget(4)
+    , m_speedActual(5)
+    , m_motorMomentTarget(6)
+    , m_motorMomentActual(7)
+    , m_brakeHydrTarget(8)
+    , m_brakeHydrActual(9)
     , m_lastUpdate()
 {}
 
@@ -82,16 +109,8 @@ CanRes::CanRes(const int &argc, char **argv)
     : TimeTriggeredConferenceClientModule(argc, argv, "proxy-lynx-can-res")
     , GenericCANMessageListener()
     , m_requests()
-    //, m_fifoGenericCanMessages()
-    //, m_recorderGenericCanMessages()
-    //, m_fifoMappedCanMessages()
-    //, m_recorderMappedCanMessages()
     , m_device()
-    , m_cfsdCanMessageMapping()
-    //, m_startOfRecording()
-    //, m_ASCfile()
-    //, m_mapOfCSVFiles()
-    //, m_mapOfCSVVisitors() 
+    , m_cfsdCanMessageMapping() 
     {}
 
 CanRes::~CanRes() {}
@@ -142,19 +161,19 @@ void CanRes::nextContainer(Container &a_container) {
         if (a_container.getSenderStamp() == 1201){ // EBS Line
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_pressureEbsLine = (uint8_t) (pressureReading.getPressure()*20);
+            m_requests.m_asPrEbsLine = (uint8_t) (pressureReading.getPressure()*10);
         }else if (a_container.getSenderStamp() == 1202){ // Service tank
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_pressureEbsServ = (uint8_t) (pressureReading.getPressure()*20);
+            m_requests.m_asPrService = (uint8_t) (pressureReading.getPressure()*10);
         }else if (a_container.getSenderStamp() == 1203){ // EBS Act
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_pressureEbsAct = (uint8_t) (pressureReading.getPressure()*20);
+            m_requests.m_asPrEbsAct = (uint8_t) (pressureReading.getPressure()*10);
         }else if (a_container.getSenderStamp() == 1205){ // Service regulator
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_pressureEbsReg = (uint8_t) (pressureReading.getPressure()*20);
+            m_requests.m_asPrRegulator = (uint8_t) (pressureReading.getPressure()*10);
         }
     }
 
@@ -163,11 +182,11 @@ void CanRes::nextContainer(Container &a_container) {
         if (a_container.getSenderStamp() == 1401){ // Current state
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_asState = (uint8_t) stateReading.getState();
-        }else if (a_container.getSenderStamp() == 1404){ // RTD
+            m_requests.m_assiState = (uint8_t) stateReading.getState();
+        }else if (a_container.getSenderStamp() == 1406){ // Mission
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_asRtd = (uint8_t) stateReading.getState();
+            m_requests.m_amiState = (uint8_t) stateReading.getState();
         }else if (a_container.getSenderStamp() == 1405){ // EBS Fault
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
@@ -253,7 +272,7 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode CanRes::body() {
             odcore::base::Lock l(m_requests.m_mutex);
             odcore::data::TimeStamp now;
 
-            {   //Set and send sensors readings to car
+            {   // nmtNodeControl
                 opendlv::proxy::NmtNodeControl nmtNodeControl;
                 nmtNodeControl.setNodeState(1);
                 nmtNodeControl.setNodeId(0);
@@ -263,6 +282,67 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode CanRes::body() {
                 automotive::GenericCANMessage genericCANmessageNmtNodeControl = nmtNodeControlMapping.encode(nmtNodeControlContainer);
                 m_device->write(genericCANmessageNmtNodeControl);
 
+            }
+
+            {   // asEbsSupervision
+                opendlv::proxy::AsEbsSupervision asEbsSupervision;
+                asEbsSupervision.setAsPrService(m_requests.m_asPrService);
+                asEbsSupervision.setAsPrRegulator(m_requests.m_asPrRegulator);
+                asEbsSupervision.setAsPrEbsLine(m_requests.m_asPrEbsLine);
+                asEbsSupervision.setAsPrEbsAct(m_requests.m_asPrEbsAct);
+                asEbsSupervision.setAsDoEbsHeartbeat(m_requests.m_asDoEbsHeartbeat);
+    
+                odcore::data::Container asEbsSupervisionContainer(asEbsSupervision);
+                canmapping::opendlv::proxy::AsEbsSupervision asEbsSupervisionMapping;
+                automotive::GenericCANMessage genericCANmessageAsEbsSupervision = asEbsSupervisionMapping.encode(asEbsSupervisionContainer);
+                m_device->write(genericCANmessageAsEbsSupervision);
+
+            }
+
+            {   // dvSystemStatus
+                opendlv::proxy::DvSystemStatus dvSystemStatus;
+                dvSystemStatus.setSteeringState(m_requests.m_steeringState);
+                dvSystemStatus.setServiceBrakeState(m_requests.m_serviceBrakeState);
+                dvSystemStatus.setLapCounter(m_requests.m_lapCounter);
+                dvSystemStatus.setEbsState(m_requests.m_ebsState);
+                dvSystemStatus.setConesCountAll(m_requests.m_conesCountAll);
+                dvSystemStatus.setConesCountActual(m_requests.m_conesCountActual);
+                dvSystemStatus.setAssiState(m_requests.m_assiState);
+                dvSystemStatus.setAmiState(m_requests.m_amiState);
+    
+                odcore::data::Container dvSystemStatusContainer(dvSystemStatus);
+                canmapping::opendlv::proxy::DvSystemStatus dvSystemStatusMapping;
+                automotive::GenericCANMessage genericCANmessageDvSystemStatus = dvSystemStatusMapping.encode(dvSystemStatusContainer);
+                m_device->write(genericCANmessageDvSystemStatus);
+            }
+
+            {   // dvDrivingDynamics2
+                opendlv::proxy::DvDrivingDynamics2 dvDrivingDynamics2;
+                dvDrivingDynamics2.setYawRate(m_requests.m_yawRate);
+                dvDrivingDynamics2.setAccLong(m_requests.m_accLong);
+                dvDrivingDynamics2.setAccLat(m_requests.m_accLat);
+    
+                odcore::data::Container dvDrivingDynamics2Container(dvDrivingDynamics2);
+                canmapping::opendlv::proxy::DvDrivingDynamics2 dvDrivingDynamics2Mapping;
+                automotive::GenericCANMessage genericCANmessageDvDrivingDynamics2 = dvDrivingDynamics2Mapping.encode(dvDrivingDynamics2Container);
+                m_device->write(genericCANmessageDvDrivingDynamics2);
+            }
+
+            {   // dvDrivingDynamics1
+                opendlv::proxy::DvDrivingDynamics1 dvDrivingDynamics1;
+                dvDrivingDynamics1.setSteeringAngleTarget(m_requests.m_steeringAngleTarget);
+                dvDrivingDynamics1.setSteeringAngleActual(m_requests.m_steeringAngleActual);
+                dvDrivingDynamics1.setSpeedTarget(m_requests.m_speedTarget);
+                dvDrivingDynamics1.setSpeedActual(m_requests.m_speedActual);
+                dvDrivingDynamics1.setMotorMomentTarget(m_requests.m_motorMomentTarget);
+                dvDrivingDynamics1.setMotorMomentActual(m_requests.m_motorMomentActual);
+                dvDrivingDynamics1.setBrakeHydrTarget(m_requests.m_brakeHydrTarget);
+                dvDrivingDynamics1.setBrakeHydrActual(m_requests.m_brakeHydrActual);
+    
+                odcore::data::Container dvDrivingDynamics1Container(dvDrivingDynamics1);
+                canmapping::opendlv::proxy::DvDrivingDynamics1 dvDrivingDynamics1Mapping;
+                automotive::GenericCANMessage genericCANmessageDvDrivingDynamics1 = dvDrivingDynamics1Mapping.encode(dvDrivingDynamics1Container);
+                m_device->write(genericCANmessageDvDrivingDynamics1);
             }
              
         }

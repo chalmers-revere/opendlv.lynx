@@ -100,8 +100,8 @@ message opendlv.proxy.DvSystemStatus [id = 1061] {
     uint8 ServiceBrakeState [id = 2];
     uint8 LapCounter [id = 3];
     uint8 EbsState [id = 4];
-    uint8 ConesCountAll [id = 5];
-    uint32 ConesCountActual [id = 6];
+    uint32 ConesCountAll [id = 5];
+    uint8 ConesCountActual [id = 6];
     uint8 AssiState [id = 7];
     uint8 AmiState [id = 8];
 }

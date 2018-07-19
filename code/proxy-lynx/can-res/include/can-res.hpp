@@ -90,6 +90,35 @@ class CanRes : public odcore::base::module::TimeTriggeredConferenceClientModule,
             uint8_t m_ebsFault;
             int16_t m_asTorqueSetPointRight;
             int16_t m_asTorqueSetPointLeft;
+            //
+            uint8_t m_asPrService;
+            uint8_t m_asPrRegulator;
+            uint8_t m_asPrEbsLine;
+            uint8_t m_asPrEbsAct;
+            uint8_t m_asDoEbsHeartbeat;
+            //
+            bool m_steeringState;
+            uint8_t m_serviceBrakeState;
+            uint8_t m_lapCounter;
+            uint8_t m_ebsState;
+            uint32_t m_conesCountAll;
+            uint8_t m_conesCountActual;
+            uint8_t m_assiState;
+            uint8_t m_amiState;
+            //
+            int16_t m_yawRate;
+            int16_t m_accLong;
+            int16_t m_accLat;
+            //
+            int8_t m_steeringAngleTarget;
+            int8_t m_steeringAngleActual;
+            uint8_t m_speedTarget;
+            uint8_t m_speedActual;
+            int8_t m_motorMomentTarget;
+            int8_t m_motorMomentActual;
+            uint8_t m_brakeHydrTarget;
+            uint8_t m_brakeHydrActual;
+            //
             odcore::data::TimeStamp m_lastUpdate;
     };
 
