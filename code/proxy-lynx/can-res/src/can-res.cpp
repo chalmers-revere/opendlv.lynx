@@ -77,29 +77,29 @@ CanRes::Requests::Requests()
     , m_asPrRegulator()
     , m_asPrEbsLine()
     , m_asPrEbsAct()
-    , m_asDoEbsHeartbeat(1)
+    , m_asDoEbsHeartbeat()
     //
-    , m_steeringState(1)
-    , m_serviceBrakeState(2)
-    , m_lapCounter(12)
-    , m_ebsState(2)
-    , m_conesCountAll(1023)
-    , m_conesCountActual(78)
+    , m_steeringState()
+    , m_serviceBrakeState()
+    , m_lapCounter(0)
+    , m_ebsState()
+    , m_conesCountAll()
+    , m_conesCountActual()
     , m_assiState()
     , m_amiState()
     //
-    , m_yawRate(4)
-    , m_accLong(5)
-    , m_accLat(6)
+    , m_yawRate()
+    , m_accLong()
+    , m_accLat()
     //
-    , m_steeringAngleTarget(3)
-    , m_steeringAngleActual(4)
-    , m_speedTarget(4)
-    , m_speedActual(5)
-    , m_motorMomentTarget(6)
-    , m_motorMomentActual(7)
-    , m_brakeHydrTarget(8)
-    , m_brakeHydrActual(9)
+    , m_steeringAngleTarget()
+    , m_steeringAngleActual()
+    , m_speedTarget()
+    , m_speedActual()
+    , m_motorMomentTarget()
+    , m_motorMomentActual()
+    , m_brakeHydrTarget()
+    , m_brakeHydrActual()
     , m_lastUpdate()
 {}
 
@@ -142,18 +142,63 @@ void CanRes::tearDown() {
 void CanRes::nextContainer(Container &a_container) {
 
   //Get groundspeed request from path planning
+    if(a_container.getDataType() == opendlv::proxy::GroundSpeedReading::ID()){
+
+        auto gsReading = a_container.getData<opendlv::proxy::GroundSpeedReading>();
+        if(a_container.getSenderStamp() == 112){
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp();
+            m_requests.m_speedTarget = static_cast<uint8_t>(gsReading.getGroundSpeed()*3.6f);
+        }
+
+    }    
+    if(a_container.getDataType() == opendlv::proxy::GroundSpeedRequest::ID()){
+
+        auto gsRequest = a_container.getData<opendlv::proxy::GroundSpeedRequest>();
+        if(a_container.getSenderStamp() == 112){
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp();
+            m_requests.m_speedActual = static_cast<uint8_t>(gsRequest.getGroundSpeed()*3.6f);
+        }
+
+    }
+    if(a_container.getDataType() == opendlv::proxy::AccelerationReading::ID()){
+
+        auto accReading = a_container.getData<opendlv::proxy::AccelerationReading>();
+        if(a_container.getSenderStamp() == 112){
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp();
+            m_requests.m_accLong = accReading.getAccelerationX();
+            m_requests.m_accLat = accReading.getAccelerationY();
+        }
+
+    }
+    if(a_container.getDataType() == opendlv::proxy::AngularVelocityReading::ID()){
+
+        auto yawReading = a_container.getData<opendlv::proxy::AngularVelocityReading>();
+        if(a_container.getSenderStamp() == 112){
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp();
+            m_requests.m_yawRate = yawReading.getAngularVelocityZ()*180/3.14f;
+        }
+
+    }
 
     if (a_container.getDataType() == opendlv::proxy::GroundSteeringReading::ID()) {
-        auto groundspeedReading = a_container.getData<opendlv::proxy::GroundSteeringReading>();
-        if (a_container.getSenderStamp() == 1200){ // Steering actuator reading
+        auto groundsteerReading = a_container.getData<opendlv::proxy::GroundSteeringReading>();
+        if(a_container.getSenderStamp() == 1206){ // Steering rack reading
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_positionAct = (uint8_t) ((groundspeedReading.getGroundSteering()+25)*5);
-        }else if (a_container.getSenderStamp() == 1206){ // Steering rack reading
-            odcore::base::Lock l(m_requests.m_mutex);
-            m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
-            m_requests.m_positionRack = (uint8_t) ((groundspeedReading.getGroundSteering()+25)*5);
+            m_requests.m_steeringAngleTarget = groundsteerReading.getGroundSteering();
         }
+    }
+    if(a_container.getDataType() == opendlv::proxy::GroundSteeringRequest::ID()){
+
+        auto gsRequest = a_container.getData<opendlv::proxy::GroundSteeringRequest>();
+        odcore::base::Lock l(m_requests.m_mutex);
+        m_requests.m_lastUpdate = odcore::data::TimeStamp();
+        m_requests.m_steeringAngleActual = gsRequest.getGroundSteering();
+
     }
 
     if (a_container.getDataType() == opendlv::proxy::PressureReading::ID()) {
@@ -191,6 +236,22 @@ void CanRes::nextContainer(Container &a_container) {
             odcore::base::Lock l(m_requests.m_mutex);
             m_requests.m_lastUpdate = odcore::data::TimeStamp(); // Set time point of last update for these values to now.
             m_requests.m_ebsFault = (uint8_t) stateReading.getState();
+        }else if(a_container.getSenderStamp() == 1406){
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp();
+            m_requests.m_amiState = stateReading.getState();
+        }else if(a_container.getSenderStamp() == 1411){
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp();
+            m_requests.m_conesSeen += stateReading.getState();
+        }else if(a_container.getSenderStamp() == 1412){
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp();
+            m_requests.m_totalConesInMap = stateReading.getState();
+        }else if(a_container.getSenderStamp() == 666){
+            odcore::base::Lock l(m_requests.m_mutex);
+            m_requests.m_lastUpdate = odcore::data::TimeStamp();
+            m_requests.m_lapCounter = static_cast<uint8_t>(stateReading.getState());
         }
     }
 
@@ -305,8 +366,8 @@ odcore::data::dmcp::ModuleExitCodeMessage::ModuleExitCode CanRes::body() {
                 dvSystemStatus.setServiceBrakeState(m_requests.m_serviceBrakeState);
                 dvSystemStatus.setLapCounter(m_requests.m_lapCounter);
                 dvSystemStatus.setEbsState(m_requests.m_ebsState);
-                dvSystemStatus.setConesCountAll(m_requests.m_conesCountAll);
-                dvSystemStatus.setConesCountActual(m_requests.m_conesCountActual);
+                dvSystemStatus.setConesCountAll(m_requests.m_conesSeen);
+                dvSystemStatus.setConesCountActual(m_requests.m_totalConesInMap);
                 dvSystemStatus.setAssiState(m_requests.m_assiState);
                 dvSystemStatus.setAmiState(m_requests.m_amiState);
     

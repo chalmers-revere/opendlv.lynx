@@ -106,18 +106,20 @@ class CanRes : public odcore::base::module::TimeTriggeredConferenceClientModule,
             uint8_t m_assiState;
             uint8_t m_amiState;
             //
-            int16_t m_yawRate;
-            int16_t m_accLong;
-            int16_t m_accLat;
+            float m_yawRate;
+            float m_accLong;
+            float m_accLat;
             //
-            int8_t m_steeringAngleTarget;
-            int8_t m_steeringAngleActual;
+            float m_steeringAngleTarget;
+            float m_steeringAngleActual;
             uint8_t m_speedTarget;
             uint8_t m_speedActual;
             int8_t m_motorMomentTarget;
             int8_t m_motorMomentActual;
             uint8_t m_brakeHydrTarget;
             uint8_t m_brakeHydrActual;
+            uint16_t m_totalConesInMap = 0;
+            uint16_t m_conesSeen = 0;
             //
             odcore::data::TimeStamp m_lastUpdate;
     };

@@ -91,6 +91,8 @@ class Can : public odcore::base::module::TimeTriggeredConferenceClientModule,
             int16_t m_asTorqueSetPointRight;
             int16_t m_asTorqueSetPointLeft;
             odcore::data::TimeStamp m_lastUpdate;
+            int16_t m_savedInMapCones = 0;
+            int16_t m_totalSeenCones = 0;
     };
 
    public:

@@ -32,6 +32,17 @@
   adaptation: 1201-1220
 */
 
+message opendlv.proxy.AccelerationReading [id = 1030] {
+  float accelerationX [id = 1];
+  float accelerationY [id = 2];
+  float accelerationZ [id = 3];
+}
+message opendlv.proxy.AngularVelocityReading [id = 1031] {
+  float angularVelocityX [id = 1];
+  float angularVelocityY [id = 2];
+  float angularVelocityZ [id = 3];
+}
+
 message opendlv.proxy.PressureReading [id = 1034] {
   float pressure [id = 1];
 }
@@ -54,7 +65,12 @@ message opendlv.proxy.SwitchStateRequest [id = 1085] {
 message opendlv.proxy.TorqueRequest [id = 1082] {
  float torque [id = 1];
 }
-
+message opendlv.proxy.GroundSteeringRequest [id = 1090] {
+  float groundSteering [id = 1];
+}
+message opendlv.proxy.GroundSpeedRequest [id = 1091] {
+  float groundSpeed [id = 1];
+}
 message opendlv.proxy.AsTorque [id = 1055] {
     int16 TorqueSetPointRight [id = 1];
     int16 TorqueSetPointLeft [id = 2];
@@ -106,13 +122,13 @@ message opendlv.proxy.DvSystemStatus [id = 1061] {
     uint8 AmiState [id = 8];
 }
 message opendlv.proxy.DvDrivingDynamics2 [id = 1062] {
-    int16 YawRate [id = 1];
-    int16 AccLong [id = 2];
-    int16 AccLat [id = 3];
+    float YawRate [id = 1];
+    float AccLong [id = 2];
+    float AccLat [id = 3];
 }
 message opendlv.proxy.DvDrivingDynamics1 [id = 1063] {
-    int8 SteeringAngleTarget [id = 1];
-    int8 SteeringAngleActual [id = 2];
+    float SteeringAngleTarget [id = 1];
+    float SteeringAngleActual [id = 2];
     uint8 SpeedTarget [id = 3];
     uint8 SpeedActual [id = 4];
     int8 MotorMomentTarget [id = 5];
